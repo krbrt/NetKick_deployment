@@ -1,0 +1,171 @@
+/* --- 1. Base Layout --- */
+.nk-shop-wrapper {
+    @apply max-w-7xl mx-auto flex flex-col md:flex-row gap-12 px-6 py-16 min-h-screen bg-white;
+}
+
+.nk-shop-sidebar {
+    @apply w-full md:w-64 flex-shrink-0;
+}
+
+/* --- 2. Sidebar & Typography --- */
+.nk-label-accent {
+    @apply text-[10px] font-black uppercase tracking-[0.3em] text-[#F53003] block mb-2;
+}
+
+.nk-sidebar-title {
+    @apply text-3xl font-black italic tracking-tighter text-black mb-8 uppercase leading-none;
+}
+
+.nk-sidebar-nav {
+    @apply space-y-4;
+}
+
+.nk-nav-link {
+    @apply flex justify-between items-center text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-all;
+}
+
+.nk-nav-arrow {
+    @apply opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0;
+}
+
+.nk-divider {
+    @apply border-gray-100 my-10;
+}
+
+/* --- 3. Filter Accordion & Inputs --- */
+.nk-filter-head {
+    @apply w-full flex items-center justify-between py-4 text-[11px] font-black uppercase tracking-widest text-black border-b border-gray-100 mb-2 transition-colors hover:text-[#F53003];
+}
+
+.nk-filter-options {
+    @apply space-y-2 pb-6 pt-2;
+}
+
+.nk-filter-label {
+    @apply flex items-center gap-3 cursor-pointer py-1 group;
+}
+
+.nk-checkbox {
+    @apply w-4 h-4 border-2 border-gray-200 rounded-none checked:bg-black checked:border-black focus:ring-0 transition-all cursor-pointer;
+}
+
+.nk-filter-text {
+    @apply text-[12px] font-bold text-gray-500 group-hover:text-black transition-colors uppercase tracking-tight;
+}
+
+/* --- 4. Product Grid & Cards --- */
+.nk-product-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16 flex-1;
+}
+
+.nk-product-card {
+    @apply flex flex-col group h-full;
+}
+
+.nk-product-img-box {
+    @apply relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 transition-colors group-hover:bg-[#ebebeb];
+}
+
+.nk-product-img {
+    @apply w-full h-full object-contain p-4 mix-blend-multiply transition-transform duration-700 group-hover:scale-110;
+}
+
+.nk-brand-badge {
+    @apply absolute top-0 left-0 bg-black text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest z-10;
+}
+
+/* --- 5. Item Details --- */
+.nk-item-brand-label {
+    @apply text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1;
+}
+
+.nk-item-name-label {
+    @apply text-base font-extrabold uppercase tracking-tight text-black mb-1 leading-tight;
+}
+
+.nk-item-price-label {
+    @apply text-sm font-bold text-gray-400 italic mb-4;
+}
+
+.nk-size-container {
+    @apply flex flex-wrap gap-1 mt-2;
+}
+
+.nk-size-tag {
+    @apply text-[9px] font-black border border-gray-200 px-2 py-1 text-gray-500 uppercase;
+}
+
+.nk-size-more {
+    @apply text-[9px] font-black bg-gray-100 px-2 py-1 text-gray-500;
+}
+
+/* --- 6. Buttons --- */
+.nk-btn-cart {
+    @apply bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 w-full border border-black hover:bg-white hover:text-black transition-all duration-300;
+}
+
+.nk-btn-signin {
+    @apply border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 w-full block hover:bg-black hover:text-white transition-all;
+}
+
+.nk-btn-confirm {
+    @apply bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 border border-black hover:bg-[#F53003] hover:border-[#F53003] transition-all;
+}
+
+/* --- 7. Modal & Overlay --- */
+.nk-modal-overlay {
+    @apply fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm;
+}
+
+.nk-modal-content {
+    @apply bg-white w-full max-w-lg p-10 border-t-8 border-[#F53003] relative shadow-2xl;
+}
+
+.nk-modal-brand {
+    @apply text-[#F53003] text-[10px] font-black uppercase tracking-[0.4em] mb-2;
+}
+
+.nk-modal-name {
+    @apply font-black italic uppercase tracking-tighter text-2xl mb-1;
+}
+
+.nk-modal-price {
+    @apply text-lg font-bold text-gray-400 mb-6;
+}
+
+.nk-input-label {
+    @apply text-[10px] font-black uppercase tracking-widest text-black block mb-2;
+}
+
+.nk-modal-size-grid {
+    @apply grid grid-cols-4 gap-2;
+}
+
+.nk-size-option {
+    @apply border-2 border-gray-100 py-3 text-center text-[11px] font-bold uppercase transition-all hover:border-black;
+}
+
+/* --- 8. Functionals (Qty/Toast) --- */
+.nk-qty-selector {
+    @apply flex items-center border-2 border-black w-fit bg-white;
+}
+
+.nk-qty-btn {
+    @apply px-5 py-2 font-black text-xl hover:bg-gray-100 transition-colors;
+}
+
+.nk-qty-input {
+    @apply w-16 text-center font-black text-sm border-none focus:ring-0;
+}
+
+.nk-modal-actions {
+    @apply flex flex-col gap-3 mt-10;
+}
+
+.nk-btn-close {
+    @apply text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors py-2;
+}
+
+.nk-toast-success {
+    @apply fixed top-10 right-10 z-[100] bg-black text-white px-6 py-4 flex items-center gap-4 border-l-4 border-[#F53003] shadow-[0_20px_50px_rgba(0,0,0,0.3)];
+}
