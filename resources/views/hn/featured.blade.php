@@ -12,85 +12,40 @@
 
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row gap-12 px-6 py-16 min-h-screen bg-white">
         {{-- Sidebar --}}
-<aside class="w-full md:w-64 flex-shrink-0">
+        <aside class="w-full md:w-64 flex-shrink-0">
             <div class="mb-2">
                 <span class="text-[10px] font-black text-[#F53003] uppercase tracking-[0.3em]">Inventory</span>
                 <h2 class="text-3xl font-black uppercase tracking-tighter mb-8 text-[#1b1b18]">New & Featured</h2>
             </div>
 
             <ul class="space-y-4 mb-10 text-[13px] font-bold uppercase tracking-tight text-gray-800">
-                <li><a href="hn.clothes" class="hover:text-[#F53003] transition-colors flex justify-between group">Clothes<span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
-                <li><a href="hn.shoes" class="hover:text-[#F53003] transition-colors flex justify-between group">Shoes <span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
-                <li><a href="hn.crocs" class="hover:text-[#F53003] transition-colors flex justify-between group">Crocs <span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
-                <li><a href="hn.sale" class="hover:text-[#F53003] transition-colors flex justify-between group">Sales <span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
+                <li><a href="{{ route('hn.clothes') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Clothes<span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
+                <li><a href="{{ route('hn.shoes') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Shoes <span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
+                <li><a href="{{ route('hn.crocs') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Crocs <span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
+                <li><a href="{{ route('hn.sale') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Sales <span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
             </ul>
 
             <hr class="border-gray-100 my-10">
 
             {{-- Filter Form --}}
-            <form action="{{ url()->current() }}" method="GET"
-                x-data="{
-                    activeFilter: 'gender',
-                    applyExclusive(name, value) {
-                        const url = new URL('{{ url()->current() }}');
-                        url.searchParams.set(name + '[]', value);
-                        window.location.href = url.href;
-                    }
-                }">
-
-                <div class="mb-4">
-                </div>
-
-@php
-    // I added 'color' to this array so it generates automatically in the loop below
-    $filters = [
-        'gender' => [
-            'label' => 'Gender',
-            'options' => ['Men', 'Women', 'Unisex']
-        ],
-        'category' => [
-            'label' => 'Category',
-            'options' => [
-                'Basketball Shoes', 'Running Shoes',
-                'Jordan Brand', 'Slides & Sandals', 'Lifestyle', 'Running',
-                 'Jersey', 'T-Shirts & Tops', 'Socks',
-                 'Classic Clogs',
-                'Echo Collection',
-                'Sandals & Slides',
-                'Platforms & Wedges'
-            ]
-        ],
-        'brand' => [
-            'label' => 'Brand',
-            'options' => ['Nike', 'Adidas', 'Jordan', 'Crocs']
-        ],
-        'color' => [
-            'label' => 'Color',
-            'options' => ['Black', 'White', 'Red', 'Blue', 'Green', 'Grey', 'Multi-Color']
-        ],
-        'price' => [
-            'label' => 'Shop by Price',
-            'options' => ['Under ₱2,500', '₱2,500 - ₱5,000', '₱5,000 - ₱7,500', 'Over ₱7,500']
-        ]
-    ];
-@endphp
+            <form action="{{ url()->current() }}" method="GET" x-data="{ activeFilter: null }">
+                @php $filters = $filters ?? []; @endphp
 
                 @foreach($filters as $key => $data)
                 <div class="mb-4">
                     <button type="button" @click="activeFilter = (activeFilter === '{{ $key }}' ? null : '{{ $key }}')"
                             class="w-full flex items-center justify-between py-4 text-[11px] font-black uppercase tracking-widest text-black border-b border-gray-100 hover:text-[#F53003]">
                         {{ $data['label'] }}
-                        <svg class="w-4 h-4" :class="activeFilter === '{{ $key }}' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 transition-transform" :class="activeFilter === '{{ $key }}' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="activeFilter === '{{ $key }}'" class="space-y-2 pb-6 pt-4">
+                    <div x-show="activeFilter === '{{ $key }}'" x-collapse class="space-y-2 pb-6 pt-4">
                         @foreach($data['options'] as $option)
                         <label class="flex items-center gap-3 cursor-pointer group">
                             <input type="checkbox" name="{{ $key }}[]" value="{{ $option }}"
-                                   @click.prevent="applyExclusive('{{ $key }}', '{{ $option }}')"
                                    class="w-4 h-4 border-2 border-gray-200 rounded-none checked:bg-black checked:border-black focus:ring-0 cursor-pointer"
-                                   {{ in_array($option, request($key, [])) ? 'checked' : '' }}>
+                                   {{ in_array($option, (array)request($key, [])) ? 'checked' : '' }}>
                             <span class="text-[12px] font-bold text-gray-500 group-hover:text-black uppercase tracking-tight">
                                 {{ $option }}
                             </span>
@@ -104,18 +59,17 @@
                     <button type="button" @click="activeFilter = (activeFilter === 'size' ? null : 'size')"
                             class="w-full flex items-center justify-between py-4 text-[11px] font-black uppercase tracking-widest text-black border-b border-gray-100 hover:text-[#F53003]">
                         Size
-                        <svg class="w-4 h-4" :class="activeFilter === 'size' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 transition-transform" :class="activeFilter === 'size' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="activeFilter === 'size'" class="grid grid-cols-4 gap-2 pt-4 pb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                    <div x-show="activeFilter === 'size'" x-collapse class="grid grid-cols-4 gap-2 pt-4 pb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                         @php $allSizes = array_merge(['S', 'M', 'L', 'XL'], range(36, 60)); @endphp
                         @foreach($allSizes as $size)
                         <label class="relative cursor-pointer">
                             <input type="checkbox" name="size[]" value="{{ $size }}"
-                                   @click.prevent="applyExclusive('size', '{{ $size }}')"
-                                   class="peer hidden" {{ in_array((string)$size, request('size', [])) ? 'checked' : '' }}>
-                            <div class="py-2 text-[10px] font-black text-center border border-gray-100 rounded-md peer-checked:bg-black peer-checked:text-white hover:border-black uppercase">
+                                   class="peer hidden" {{ in_array((string)$size, (array)request('size', [])) ? 'checked' : '' }}>
+                            <div class="py-2 text-[10px] font-black text-center border border-gray-100 rounded-md peer-checked:bg-black peer-checked:text-white hover:border-black uppercase transition-all">
                                 {{ $size }}
                             </div>
                         </label>
@@ -124,8 +78,11 @@
                 </div>
 
                 <div class="mt-8">
-                    @if(request()->anyFilled(['gender', 'category', 'brand', 'price', 'size', 'sale', 'color']))
-                        <a href="{{ url()->current() }}" class="block text-center text-[10px] font-black uppercase tracking-widest text-white bg-black py-4 hover:bg-[#F53003]">
+                    <button type="submit" class="block w-full text-center text-[10px] font-black uppercase tracking-widest text-white bg-black py-4 hover:bg-[#F53003] border-none cursor-pointer transition-colors">
+                        Apply Filters
+                    </button>
+                    @if(request()->hasAny(['gender', 'category', 'brand', 'color', 'price', 'size']))
+                        <a href="{{ url()->current() }}" class="block text-center text-[10px] font-black uppercase tracking-widest text-white bg-[#F53003] py-4 mt-2 hover:bg-black transition-colors">
                             Clear All Filters
                         </a>
                     @endif
@@ -133,79 +90,80 @@
             </form>
         </aside>
 
-{{-- Main Content --}}
-<main class="flex-1" x-data="{
-    openModal: false,
-    selectedProduct: { id: '', name: '', price: 0, sizes: '', brand: '', stock: 0, image: '' },
-    quantity: 1
-}">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-        @forelse ($products as $product)
-        <div class="flex flex-col group">
-            {{-- Image Container --}}
-            <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
-                @if($product->image)
-                    <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
+        {{-- Main Content --}}
+        <main class="flex-1" x-data="{
+            openModal: false,
+            selectedProduct: { id: '', name: '', price: 0, sizes: '', brand: '', stock: 0, image: '' },
+            quantity: 1
+        }">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+                @forelse ($products->filter(fn($product) => $product->quality) as $product)
+                <div class="flex flex-col group">
+                    {{-- Image Container --}}
+                    <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
+                        @if($product->image)
+                            <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
+                        @endif
+                        @if($product->quality)
+                        <div class="absolute top-0 left-0 bg-[#F53003] text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
+                            {{ $product->quality }}
+                        </div>
+                        @endif
+                    </div>
+
+                    {{-- Product Info --}}
+                    <div class="mb-6 text-center">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
+                        <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
+                        <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
+
+                        <div class="flex flex-wrap justify-center gap-1.5 px-2">
+                            @php
+                                $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
+                            @endphp
+                            @foreach($productSizes as $size)
+                                <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
+                                    {{ trim($size) }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="mt-auto">
+                        @auth
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
+                                        class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
+                                    Add to Cart
+                                </button>
+                                <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
+                                        class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
+                                    Buy Now
+                                </button>
+                            </div>
+                        @else
+                            <a href="{{ route('login') }}" class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
+                                Sign in to Shop
+                            </a>
+                        @endauth
+                    </div>
+                </div>
+                @empty
+                    <div class="col-span-full py-20 text-center">
+                        <p class="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px]">No items found.</p>
+                    </div>
+                @endforelse
+
+                @if($products->hasPages())
+                <div class="flex justify-center mt-20 col-span-full">
+                    {{ $products->links('pagination::tailwind') }}
+                </div>
                 @endif
-                <div class="absolute top-0 left-0 bg-black text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
-                    {{ $product->brand }}
-                </div>
             </div>
 
-            {{-- Product Info --}}
-            <div class="mb-6 text-center">
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
-                <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
-                <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
-
-                {{-- SIZES LISTED ON PAGE --}}
-                <div class="flex flex-wrap justify-center gap-1.5 px-2">
-                    @php
-                        // Convert string "36,37,38" into an array
-                        $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
-                    @endphp
-
-                    @foreach($productSizes as $size)
-                        <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
-                            {{ trim($size) }}
-                        </span>
-                    @endforeach
-                </div>
-            </div>
-
-<div class="mt-auto">
-    @auth
-        <div class="flex flex-col sm:flex-row gap-2">
-            {{-- Add to Cart --}}
-            <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
-                    class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
-                Add to Cart
-            </button>
-
-            {{-- Buy Now (Direct to Modal with primary intent) --}}
-            <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
-                    class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
-                Buy Now
-            </button>
-        </div>
-    @else
-        <a href="{{ route('login') }}" class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
-            Sign in to Shop
-        </a>
-    @endauth
-</div>
-        </div>
-        @empty
-            <div class="col-span-full py-20 text-center">
-                <p class="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px]">No items found.</p>
-            </div>
-        @endforelse
-    </div>
-
-          {{-- Modal --}}
-            <div x-show="openModal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" x-cloak>
+            {{-- Modal --}}
+            <div x-show="openModal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" x-cloak x-transition>
                 <div @click.away="openModal = false" class="bg-white w-full max-w-md p-10 border-t-8 border-[#F53003] shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-
                     <div class="relative w-full aspect-square bg-[#f6f6f6] mb-8 overflow-hidden flex items-center justify-center border border-gray-50">
                         <template x-if="selectedProduct.image">
                             <img :src="selectedProduct.image" :alt="selectedProduct.name" class="w-full h-full object-contain p-6 mix-blend-multiply">
@@ -228,7 +186,7 @@
                                 <template x-for="size in selectedProduct.sizes ? selectedProduct.sizes.split(',') : []">
                                     <label class="cursor-pointer">
                                         <input type="radio" name="size" :value="size.trim()" class="peer hidden" required>
-                                        <div class="border-2 border-gray-100 py-3 text-center text-[11px] font-black uppercase peer-checked:bg-black peer-checked:text-white hover:border-black">
+                                        <div class="border-2 border-gray-100 py-3 text-center text-[11px] font-black uppercase peer-checked:bg-black peer-checked:text-white hover:border-black transition-all">
                                             <span x-text="size.trim()"></span>
                                         </div>
                                     </label>
@@ -249,10 +207,10 @@
                         </div>
 
                         <div class="flex flex-col gap-3">
-                            <button type="submit" :disabled="selectedProduct.stock <= 0" class="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 border border-black hover:bg-[#F53003] hover:border-[#F53003] disabled:opacity-50">
+                            <button type="submit" :disabled="selectedProduct.stock <= 0" class="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 border border-black hover:bg-[#F53003] hover:border-[#F53003] disabled:opacity-50 transition-colors">
                                 Confirm & Add to Cart
                             </button>
-                            <button type="button" @click="openModal = false" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black py-2">
+                            <button type="button" @click="openModal = false" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black py-2 transition-colors">
                                 Close
                             </button>
                         </div>
@@ -270,7 +228,7 @@
             </div>
 
             @foreach([
-'Contact' => ['https://www.facebook.com/profile.php?id=61555962290158', 'support@netkicks.com'],
+                'Contact' => ['https://www.facebook.com/profile.php?id=61555962290158', 'support@netkicks.com'],
                 'Shop' => ['New & Featured' => 'hn.featured', 'Clothes' => 'hn.clothes', 'Shoes' => 'hn.shoes', 'Crocs' => 'hn.crocs', 'Sale' => 'hn.sale'],
                 'Company' => ['Privacy Policy' => 'privacy', 'Terms' => 'terms', 'About Us' => 'about']
             ] as $title => $links)
@@ -290,12 +248,10 @@
         </div>
     </footer>
 
-
-<style>
-    [x-cloak] { display: none !important; }
-    .custom-scrollbar::-webkit-scrollbar { width: 3px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #000; }
-</style>
-
+    <style>
+        [x-cloak] { display: none !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #000; }
+    </style>
 </x-app-layout>
