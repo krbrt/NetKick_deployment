@@ -9,14 +9,14 @@
     ],
     "license": "MIT",
     "require": {
-        "league/flysystem-aws-s3-v3": "^3.0",
         "php": "^8.2",
         "bacon/bacon-qr-code": "^3.0",
         "guzzlehttp/guzzle": "^7.9",
         "laravel/breeze": "^2.4",
         "laravel/fortify": "^1.25",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "league/flysystem-aws-s3-v3": "^3.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -88,6 +88,14 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "audit": {
+            "abandoned": "report",
+            "ignore": [
+                "PKSA-4t1p-xpk2-nsss",
+                "PKSA-dxyf-6n16-t87m",
+                "PKSA-n3s6-289w-qtqb"
+            ]
         }
     },
     "minimum-stability": "stable",
