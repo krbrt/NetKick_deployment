@@ -115,7 +115,7 @@
                     {{-- Image Container --}}
                     <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
                         @if($product->image)
-                            <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-110">
+                            <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-110">
                         @endif
 
                         {{-- New Dynamic Sale Badge --}}
