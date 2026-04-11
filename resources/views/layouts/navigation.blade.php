@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-black text-white sticky top-0 z-50 border-b border-white/10">
+<nav class="bg-black text-white sticky top-0 z-50 border-b border-white/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
         <div class="flex justify-between items-center h-16">
 
@@ -23,7 +23,7 @@
             <div class="flex items-center space-x-4">
                 {{-- Search Bar --}}
                 <form action="{{ route('hn.featured') }}" method="GET" class="relative hidden lg:block">
-                    <input type="text" name="search" placeholder="Search products..." 
+                    <input type="text" name="search" placeholder="Search products..."
                            class="bg-[#1a1a1a] text-white text-[10px] rounded-full pl-9 pr-4 py-2 w-48 border border-white/10 focus:border-[#F53003] focus:ring-0 outline-none transition-all placeholder:text-gray-600 font-bold uppercase tracking-wider"
                            value="{{ request('search') }}">
                     <svg class="w-3.5 h-3.5 text-gray-500 absolute left-3.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,11 +31,8 @@
                     </svg>
                 </form>
 
-                
-
-                {{-- Authentication Required Section --}}
                 @auth
-                    {{-- Cart Button (Only visible when logged in) --}}
+                    {{-- Cart Button --}}
                     <a href="{{ route('cart.index') }}" class="bg-white text-black px-4 py-2 rounded-full flex items-center gap-2 text-[10px] font-black uppercase hover:bg-[#F53003] hover:text-white transition-all shadow-lg active:scale-95">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -46,40 +43,56 @@
                         </span>
                     </a>
 
-                    {{-- Profile Dropdown --}}
-                    <div class="flex items-center border border-white/10 rounded-full pl-3 pr-1 py-1 hover:bg-white/5 transition group">
-                        <svg class="w-3.5 h-3.5 text-gray-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                        <x-dropdown align="right" width="48">
-                            <x-slot name="trigger">
-                                <button class="text-[10px] font-black uppercase tracking-widest px-2 py-1 focus:outline-none flex items-center hover:text-[#F53003] transition-colors">
-                                    {{ Auth::user()->name }}
-                                    <svg class="ml-1 w-3 h-3 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                                </button>
-                            </x-slot>
-                            <x-slot name="content">
-                                <div class="block px-4 py-2 text-[9px] text-gray-400 uppercase font-black tracking-[0.2em] bg-gray-50/5">Manage Account</div>
-                                
-                                @if(Auth::user()->usertype == 'admin')
-                                    <x-dropdown-link :href="route('admin.home')" class="text-[11px] font-black uppercase text-[#F53003] hover:bg-red-50">
-                                        Admin Dashboard
-                                    </x-dropdown-link>
-                                @endif
+                    {{-- Profile Dropdown (Vanilla JS) --}}
+                    <div class="relative" id="profile-dropdown-wrapper">
+                        <button id="profile-dropdown-btn"
+                                class="flex items-center border border-white/10 rounded-full pl-3 pr-2 py-1 hover:bg-white/5 transition focus:outline-none group">
+                            <svg class="w-3.5 h-3.5 text-gray-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-2 hover:text-[#F53003] transition-colors">
+                                {{ Auth::user()->name }}
+                            </span>
+                            <svg id="profile-dropdown-chevron" class="w-3 h-3 text-gray-600 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
 
-                                <x-dropdown-link :href="route('profile.edit')" class="text-[11px] font-bold uppercase hover:bg-gray-100">Profile Settings</x-dropdown-link>
-                                <div class="border-t border-gray-100"></div>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="text-[11px] font-black uppercase text-red-600 hover:bg-red-50">
-                                        Sign Out
-                                    </x-dropdown-link>
-                                </form>
-                            </x-slot>
-                        </x-dropdown>
+                        {{-- Dropdown Menu --}}
+                        <div id="profile-dropdown-menu"
+                             class="hidden absolute right-0 mt-2 w-52 bg-white text-black shadow-2xl rounded-md z-50 overflow-hidden border border-gray-100"
+                             style="transform-origin: top right;">
+
+                            <div class="px-4 py-2 text-[9px] text-gray-400 uppercase font-black tracking-[0.2em] bg-gray-50 border-b border-gray-100">
+                                Manage Account
+                            </div>
+
+                            @if(Auth::user()->usertype == 'admin')
+                                <a href="{{ route('admin.home') }}"
+                                   class="block px-4 py-3 text-[11px] font-black uppercase text-[#F53003] hover:bg-red-50 transition-colors">
+                                    Admin Dashboard
+                                </a>
+                            @endif
+
+                            <a href="{{ route('profile.edit') }}"
+                               class="block px-4 py-3 text-[11px] font-bold uppercase text-gray-700 hover:bg-gray-100 transition-colors">
+                                Profile Settings
+                            </a>
+
+                            <div class="border-t border-gray-100"></div>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                        class="w-full text-left px-4 py-3 text-[11px] font-black uppercase text-red-600 hover:bg-red-50 transition-colors">
+                                    Sign Out
+                                </button>
+                            </form>
+                        </div>
                     </div>
+
                 @else
-                    {{-- Login/Register Links for Guests (Cart is hidden) --}}
+                    {{-- Guest Links --}}
                     <div class="flex items-center gap-4 ml-2">
                         <a href="{{ route('login') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-white transition-colors">Sign In</a>
                         <span class="h-3 w-[1px] bg-white/10"></span>
@@ -90,3 +103,50 @@
         </div>
     </div>
 </nav>
+
+<script>
+    (function () {
+        const btn     = document.getElementById('profile-dropdown-btn');
+        const menu    = document.getElementById('profile-dropdown-menu');
+        const chevron = document.getElementById('profile-dropdown-chevron');
+
+        if (!btn || !menu) return;
+
+        function openMenu() {
+            menu.classList.remove('hidden');
+            menu.style.opacity = '0';
+            menu.style.transform = 'scale(0.95)';
+            menu.style.transition = 'opacity 100ms ease, transform 100ms ease';
+            requestAnimationFrame(() => {
+                menu.style.opacity = '1';
+                menu.style.transform = 'scale(1)';
+            });
+            chevron.style.transform = 'rotate(180deg)';
+        }
+
+        function closeMenu() {
+            menu.style.opacity = '0';
+            menu.style.transform = 'scale(0.95)';
+            chevron.style.transform = 'rotate(0deg)';
+            setTimeout(() => menu.classList.add('hidden'), 100);
+        }
+
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            menu.classList.contains('hidden') ? openMenu() : closeMenu();
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', function (e) {
+            const wrapper = document.getElementById('profile-dropdown-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                closeMenu();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeMenu();
+        });
+    })();
+</script>
