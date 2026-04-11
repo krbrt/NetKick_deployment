@@ -68,10 +68,9 @@ class CheckoutController extends Controller
                 'discount_amount' => 0,
                 'total_amount' => $total,
                 'total_price' => $total,
-'payment_method' => $request->payment_method,
-'status' => $request->payment_method === 'gcash' ? 'paid' : 'pending',
-'notes' => $request->payment_method === 'gcash' ? 'GCash Ref: ' . $request->gcash_reference : null,
-                'status' => 'pending',
+                'payment_method' => $request->payment_method,
+                'status' => $request->payment_method === 'gcash' ? 'paid' : 'pending',
+                'notes' => $request->payment_method === 'gcash' ? 'GCash Ref: ' . $request->gcash_reference : 'Cash on Delivery',
             ]);
 
             foreach ($cartItems as $cartItem) {

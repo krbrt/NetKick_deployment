@@ -4,7 +4,7 @@
     <div class="max-w-4xl mx-auto py-12 px-6">
         <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
-            
+
             {{-- 1. BASIC INFO --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
@@ -23,7 +23,7 @@
                         <option value="Crocs">Crocs</option>
                         <option value="OTHER">Other Brand...</option>
                     </select>
-                    <input type="text" id="new-brand-input" name="new_brand" placeholder="Type Brand Name..." 
+                    <input type="text" id="new-brand-input" name="new_brand" placeholder="Type Brand Name..."
                         class="hidden w-full mt-2 bg-[#111] border border-[#F53003]/50 rounded-xl p-4 text-white italic focus:ring-0">
                 </div>
             </div>
@@ -45,7 +45,7 @@
                     <select name="category" id="category-select" onchange="autoSelectType(this)"
                         class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#F53003] outline-none">
                         <option value="" disabled selected>Select Category</option>
-                        
+
                         <optgroup label="Footwear">
                             <option value="Basketball Shoes">Basketball Shoes</option>
                             <option value="Running Shoes">Running Shoes</option>
@@ -65,31 +65,41 @@
                             <option value="Echo">Echo Collection</option>
                             <option value="Sandals">Sandals & Slides</option>
                         </optgroup>
-                        
+
                         <option value="NEW">+ Add New Category</option>
                     </select>
-                    <input type="text" id="new-category-input" name="new_category" placeholder="Type Category Name..." 
+                    <input type="text" id="new-category-input" name="new_category" placeholder="Type Category Name..."
                         class="hidden w-full mt-2 bg-[#111] border border-[#F53003]/50 rounded-xl p-4 text-white italic focus:ring-0">
                 </div>
             </div>
 
-            {{-- 3. COLOR & GENDER --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="text-[11px] font-bold uppercase text-gray-500 tracking-wider">Color / Way</label>
-                    <input type="text" name="color" placeholder="e.g. Triple Black, Panda, Varsity Red" required
-                        class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#F53003]">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[11px] font-bold uppercase text-gray-500 tracking-wider">Gender</label>
-                    <select name="gender" required
-                        class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#F53003] outline-none">
-                        <option value="Men">Men</option>
-                        <option value="Women">Women</option>
-                        <option value="Unisex">Unisex</option>
-                    </select>
-                </div>
-            </div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="space-y-2">
+        <label class="text-[11px] font-bold uppercase text-gray-500 tracking-wider">Color / Way</label>
+        <input type="text" name="color" placeholder="e.g. Triple Black, Panda" required
+            class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#F53003] outline-none transition-all">
+    </div>
+
+    <div class="space-y-2">
+        <label class="text-[11px] font-bold uppercase text-gray-500 tracking-wider">Gender</label>
+        <select name="gender" required
+            class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#F53003] outline-none transition-all">
+            <option value="Men">Men</option>
+            <option value="Women">Women</option>
+            <option value="Unisex">Unisex</option>
+        </select>
+    </div>
+
+    <div class="space-y-2">
+        <label class="text-[11px] font-bold uppercase text-gray-500 tracking-wider">Quality Grade</label>
+        <select name="quality" required
+            class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#F53003] outline-none transition-all">
+            <option value="Top-Grade">Top-Grade</option>
+            <option value="Class A">Class A</option>
+            <option value="Slides">Slides</option>
+        </select>
+    </div>
+</div>
 
             {{-- 4. PRICING, STOCK, SIZES --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -135,7 +145,7 @@
         function autoSelectType(select) {
             const typeSelect = document.getElementById('type-select');
             const newCatInput = document.getElementById('new-category-input');
-            
+
             // Show input if NEW is selected
             if (select.value === 'NEW') {
                 newCatInput.classList.remove('hidden');

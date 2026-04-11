@@ -43,7 +43,8 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {{-- COD Option --}}
                             <label class="relative cursor-pointer group">
-                                <input type="radio" name="payment_method" value="cod" class="peer hidden" checked>
+                                {{-- Idinagdag ang handlePaymentChange dito --}}
+                                <input type="radio" name="payment_method" value="cod" class="peer hidden" checked onchange="handlePaymentChange(this)">
                                 <div class="p-6 border-2 border-gray-100 rounded-2xl text-center peer-checked:border-[#F53003] peer-checked:bg-[#F53003]/5 transition-all">
                                     <span class="block font-black uppercase text-[11px] italic tracking-widest">Cash on Delivery</span>
                                     <p class="text-[9px] text-gray-400 uppercase mt-1">Pay when you receive</p>
@@ -58,30 +59,29 @@
                                     <p class="text-[9px] text-gray-400 uppercase mt-1">Enter reference number to proceed</p>
                                 </div>
                             </label>
+                        </div>
 
-                            <div id="gcash-ref" class="hidden mt-6 p-8 bg-blue-50/50 border-2 border-blue-100 rounded-[2.5rem] animate-in fade-in slide-in-from-top-4 duration-500">
-                                <div class="flex flex-col md:flex-row items-center gap-8">
-                                    {{-- QR Code --}}
-                                    <div class="w-32 h-32 bg-white p-2 rounded-2xl shadow-sm border border-blue-100 flex-shrink-0 overflow-hidden">
-                                        <img src="{{ asset('images/netkicks-qr.jpg') }}" alt="GCash QR" class="w-full h-full object-cover rounded-xl">
+                        {{-- GCash Details Box --}}
+                        <div id="gcash-ref" class="hidden mt-6 p-8 bg-blue-50/50 border-2 border-blue-100 rounded-[2.5rem] animate-in fade-in slide-in-from-top-4 duration-500">
+                            <div class="flex flex-col md:flex-row items-center gap-8">
+                                <div class="w-32 h-32 bg-white p-2 rounded-2xl shadow-sm border border-blue-100 flex-shrink-0 overflow-hidden">
+                                    <img src="{{ asset('images/netkicks-qr.jpg') }}" alt="GCash QR" class="w-full h-full object-cover rounded-xl">
+                                </div>
+
+                                <div class="flex-1 text-center md:text-left space-y-4">
+                                    <div>
+                                        <h4 class="text-sm font-black uppercase italic text-blue-900 tracking-tight">Pay via GCash</h4>
+                                        <p class="text-[10px] text-blue-700/70 font-bold uppercase tracking-widest mt-1">Exact amount: ₱{{ number_format($total) }}</p>
                                     </div>
 
-                                    <div class="flex-1 text-center md:text-left space-y-4">
-                                        <div>
-                                            <h4 class="text-sm font-black uppercase italic text-blue-900 tracking-tight">Pay via GCash</h4>
-                                            <p class="text-[10px] text-blue-700/70 font-bold uppercase tracking-widest mt-1">Exact amount: ₱{{ number_format($total) }}</p>
-                                        </div>
-
-                                        {{-- Number --}}
-                                        <div class="bg-white/60 p-4 rounded-xl inline-block border border-blue-100">
-                                            <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest">Number</p>
-                                            <p class="text-lg font-black text-blue-600">0916 371 2961</p>
-                                        </div>
-
-                                        <input type="text" name="gcash_reference" placeholder="Enter transaction reference/ID" required 
-                                            class="w-full bg-white border border-blue-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 text-sm font-mono tracking-wide">
-                                        <p class="text-[8px] text-blue-600 mt-1 font-bold uppercase">e.g. GC123456789 or TXN ID after payment</p>
+                                    <div class="bg-white/60 p-4 rounded-xl inline-block border border-blue-100">
+                                        <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest">Number</p>
+                                        <p class="text-lg font-black text-blue-600">0916 371 2961</p>
                                     </div>
+
+                                    <input type="text" id="gcash_input" name="gcash_reference" placeholder="Enter transaction reference/ID"
+                                        class="w-full bg-white border border-blue-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 text-sm font-mono tracking-wide">
+                                    <p class="text-[8px] text-blue-600 mt-1 font-bold uppercase">e.g. GC123456789 or TXN ID after payment</p>
                                 </div>
                             </div>
                         </div>
@@ -139,14 +139,15 @@
     <script>
         function handlePaymentChange(radio) {
             const gcashRef = document.getElementById('gcash-ref');
-            const form = radio.closest('form');
-            
+            const gcashInput = document.getElementById('gcash_input');
+
             if (radio.value === 'gcash') {
                 gcashRef.classList.remove('hidden');
-                form.action = '{{ route("checkout.process") }}'; // Same process, but with ref
+                gcashInput.setAttribute('required', 'required'); // Required lang kapag GCash
             } else {
                 gcashRef.classList.add('hidden');
-                form.action = '{{ route("checkout.process") }}';
+                gcashInput.removeAttribute('required'); // Alisin ang required kapag COD
+                gcashInput.value = ''; // I-clear ang input
             }
         }
     </script>

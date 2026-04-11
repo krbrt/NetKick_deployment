@@ -21,9 +21,7 @@
             </div>
 
             <div class="space-y-4">
-                <a href="{{ route('orders.index') }}" class="inline-block bg-black text-white px-8 py-4 rounded-2xl font-black uppercase tracking-wider hover:bg-gray-800 transition-all">
-                    Track Order
-                </a>
+
                 <a href="{{ route('home') }}" class="inline-block text-gray-600 underline font-bold uppercase tracking-wider hover:text-gray-900">
                     Continue Shopping →
                 </a>

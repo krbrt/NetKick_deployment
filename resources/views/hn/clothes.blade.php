@@ -121,79 +121,83 @@
 </aside>
 
 {{-- Main Content --}}
-<main class="flex-1" x-data="{
-    openModal: false,
-    selectedProduct: null,
-    quantity: 1
-}">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-        @forelse ($products as $product)
-        <div class="flex flex-col group">
-            {{-- Image Container --}}
-            <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
-                @if($product->image)
-                    <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
-                @endif
-                <div class="absolute top-0 left-0 bg-black text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
-                    {{ $product->brand }}
-                </div>
-            </div>
-
-            {{-- Product Info --}}
-            <div class="mb-6 text-center">
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
-                <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
-                <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
-
-                <div class="flex flex-wrap justify-center gap-1.5 px-2">
-                    @php
-                        $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
-                    @endphp
-
-                    @foreach($productSizes as $size)
-                        <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
-                            {{ trim($size) }}
-                        </span>
-                    @endforeach
-                </div>
-            </div>
-
-            <div class="mt-auto">
-                @auth
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <button @click="selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }; quantity = 1; openModal = true;"
-                                class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
-                            Add to Cart
-                        </button>
-
-                        <button @click="selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }; quantity = 1; openModal = true;"
-                                class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
-                            Buy Now
-                        </button>
+        <main class="flex-1" x-data="{
+            openModal: false,
+            selectedProduct: { id: '', name: '', price: 0, sizes: '', brand: '', stock: 0, image: '' },
+            quantity: 1
+        }">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+                @forelse ($products->filter(fn($product) => $product->quality) as $product)
+                <div class="flex flex-col group">
+                    {{-- Image Container --}}
+                    <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
+                        @if($product->image)
+                            <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
+                        @endif
+                        @if($product->quality)
+                        <div class="absolute top-0 left-0 bg-[#F53003] text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
+                            {{ $product->quality }}
+                        </div>
+                        @endif
                     </div>
-                @else
-                    <a href="{{ route('login') }}" class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
-                        Sign in to Shop
-                    </a>
-                @endauth
-            </div>
-        </div>
-        @empty
-            <div class="col-span-full py-20 text-center">
-                <p class="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px]">No items found.</p>
-            </div>
-        @endforelse
-    </div>
 
-    {{-- Modal --}}
-    <div x-show="openModal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" x-cloak>
-        <div @click.away="openModal = false" class="bg-white w-full max-w-md p-10 border-t-8 border-[#F53003] shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+                    {{-- Product Info --}}
+                    <div class="mb-6 text-center">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
+                        <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
+                        <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
 
-            {{-- ADDED THIS WRAPPER TO PREVENT ERRORS --}}
-            <template x-if="selectedProduct">
-                <div>
+                        <div class="flex flex-wrap justify-center gap-1.5 px-2">
+                            @php
+                                $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
+                            @endphp
+                            @foreach($productSizes as $size)
+                                <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
+                                    {{ trim($size) }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="mt-auto">
+                        @auth
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
+                                        class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
+                                    Add to Cart
+                                </button>
+                                <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
+                                        class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
+                                    Buy Now
+                                </button>
+                            </div>
+                        @else
+                            <a href="{{ route('login') }}" class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
+                                Sign in to Shop
+                            </a>
+                        @endauth
+                    </div>
+                </div>
+                @empty
+                    <div class="col-span-full py-20 text-center">
+                        <p class="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px]">No items found.</p>
+                    </div>
+                @endforelse
+
+                @if($products->hasPages())
+                <div class="flex justify-center mt-20 col-span-full">
+                    {{ $products->links('pagination::tailwind') }}
+                </div>
+                @endif
+            </div>
+
+            {{-- Modal --}}
+            <div x-show="openModal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" x-cloak x-transition>
+                <div @click.away="openModal = false" class="bg-white w-full max-w-md p-10 border-t-8 border-[#F53003] shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
                     <div class="relative w-full aspect-square bg-[#f6f6f6] mb-8 overflow-hidden flex items-center justify-center border border-gray-50">
-                        <img :src="selectedProduct.image" :alt="selectedProduct.name" class="w-full h-full object-contain p-6 mix-blend-multiply">
+                        <template x-if="selectedProduct.image">
+                            <img :src="selectedProduct.image" :alt="selectedProduct.name" class="w-full h-full object-contain p-6 mix-blend-multiply">
+                        </template>
                     </div>
 
                     <div class="text-center mb-8">
@@ -212,7 +216,7 @@
                                 <template x-for="size in selectedProduct.sizes ? selectedProduct.sizes.split(',') : []">
                                     <label class="cursor-pointer">
                                         <input type="radio" name="size" :value="size.trim()" class="peer hidden" required>
-                                        <div class="border-2 border-gray-100 py-3 text-center text-[11px] font-black uppercase peer-checked:bg-black peer-checked:text-white hover:border-black">
+                                        <div class="border-2 border-gray-100 py-3 text-center text-[11px] font-black uppercase peer-checked:bg-black peer-checked:text-white hover:border-black transition-all">
                                             <span x-text="size.trim()"></span>
                                         </div>
                                     </label>
@@ -233,19 +237,17 @@
                         </div>
 
                         <div class="flex flex-col gap-3">
-                            <button type="submit" :disabled="selectedProduct.stock <= 0" class="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 border border-black hover:bg-[#F53003] hover:border-[#F53003] disabled:opacity-50">
+                            <button type="submit" :disabled="selectedProduct.stock <= 0" class="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 border border-black hover:bg-[#F53003] hover:border-[#F53003] disabled:opacity-50 transition-colors">
                                 Confirm & Add to Cart
                             </button>
-                            <button type="button" @click="openModal = false" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black py-2">
+                            <button type="button" @click="openModal = false" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black py-2 transition-colors">
                                 Close
                             </button>
                         </div>
                     </form>
                 </div>
-            </template>
-        </div>
-    </div>
-</main>
+            </div>
+        </main>
 
     </div>
 

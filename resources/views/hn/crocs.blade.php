@@ -102,119 +102,130 @@
         </aside>
 
         {{-- Main Content --}}
-        <main x-data="{
+        <main class="flex-1" x-data="{
             openModal: false,
             selectedProduct: { id: '', name: '', price: 0, sizes: '', brand: '', stock: 0, image: '' },
             quantity: 1
-        }" class="flex-1">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-        @forelse ($products as $product)
-        <div class="flex flex-col group">
-            {{-- Image Container --}}
-            <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
-                @if($product->image)
-                    <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
+        }">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+                @forelse ($products->filter(fn($product) => $product->quality) as $product)
+                <div class="flex flex-col group">
+                    {{-- Image Container --}}
+                    <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
+                        @if($product->image)
+                            <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
+                        @endif
+                        @if($product->quality)
+                        <div class="absolute top-0 left-0 bg-[#F53003] text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
+                            {{ $product->quality }}
+                        </div>
+                        @endif
+                    </div>
+
+                    {{-- Product Info --}}
+                    <div class="mb-6 text-center">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
+                        <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
+                        <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
+
+                        <div class="flex flex-wrap justify-center gap-1.5 px-2">
+                            @php
+                                $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
+                            @endphp
+                            @foreach($productSizes as $size)
+                                <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
+                                    {{ trim($size) }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="mt-auto">
+                        @auth
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
+                                        class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
+                                    Add to Cart
+                                </button>
+                                <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
+                                        class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
+                                    Buy Now
+                                </button>
+                            </div>
+                        @else
+                            <a href="{{ route('login') }}" class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
+                                Sign in to Shop
+                            </a>
+                        @endauth
+                    </div>
+                </div>
+                @empty
+                    <div class="col-span-full py-20 text-center">
+                        <p class="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px]">No items found.</p>
+                    </div>
+                @endforelse
+
+                @if($products->hasPages())
+                <div class="flex justify-center mt-20 col-span-full">
+                    {{ $products->links('pagination::tailwind') }}
+                </div>
                 @endif
-                <div class="absolute top-0 left-0 bg-black text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
-                    {{ $product->brand }}
-                </div>
             </div>
-
-            {{-- Product Info --}}
-            <div class="mb-6 text-center">
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
-                <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
-                <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
-
-                {{-- SIZES LISTED ON PAGE --}}
-                <div class="flex flex-wrap justify-center gap-1.5 px-2">
-                    @php
-                        // Convert string "36,37,38" into an array
-                        $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
-                    @endphp
-
-                    @foreach($productSizes as $size)
-                        <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
-                            {{ trim($size) }}
-                        </span>
-                    @endforeach
-                </div>
-            </div>
-
-<div class="mt-auto">
-    @auth
-        <div class="flex flex-col sm:flex-row gap-2">
-            {{-- Add to Cart --}}
-            <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
-                    class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
-                Add to Cart
-            </button>
-
-            {{-- Buy Now (Direct to Modal with primary intent) --}}
-            <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
-                    class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
-                Buy Now
-            </button>
-        </div>
-    @else
-        <a href="{{ route('login') }}" class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
-            Sign in to Shop
-        </a>
-    @endauth
-</div>
-        </div>
-        @empty
-            <div class="col-span-full py-20 text-center">
-                <p class="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px]">No items found.</p>
-            </div>
-        @endforelse
-    </div>
 
             {{-- Modal --}}
-            <div x-show="openModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click.away="openModal = false" x-cloak>
-                <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
-                    <button @click="openModal = false" class="absolute -top-12 right-0 text-white hover:text-[#F53003] text-xl font-black">
-                        ×
-                    </button>
-                    <div class="p-8">
-                        <div class="relative w-full aspect-square bg-gradient-to-br from-gray-50 to-gray-100 mb-8 overflow-hidden rounded-2xl">
-                            <img x-show="selectedProduct.image" :src="selectedProduct.image" :alt="selectedProduct.name" class="w-full h-full object-contain p-8">
-                        </div>
-                        <div class="text-center mb-8">
-                            <p class="text-[#F53003] text-[12px] font-black uppercase tracking-[0.4em] mb-4" x-text="selectedProduct.brand"></p>
-                            <h2 class="font-black italic uppercase tracking-tighter text-3xl mb-4 text-black" x-text="selectedProduct.name"></h2>
-                            <p class="text-2xl font-bold text-gray-700" x-text="'₱' + parseFloat(selectedProduct.price).toLocaleString()"></p>
-                        </div>
-                        <form action="{{ route('cart.store') }}" method="POST" class="space-y-6">
-                            @csrf
-                            <input type="hidden" name="product_id" x-model="selectedProduct.id">
-                            <div>
-                                <label class="text-xs font-black uppercase tracking-wider text-gray-700 mb-4 block">Select Size</label>
-                                <div class="grid grid-cols-5 gap-2">
-                                    <template x-for="size in selectedProduct.sizes.split(',')">
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="size" :value="size.trim()" class="peer sr-only" required>
-                                            <div class="border-2 border-gray-300 py-3 px-2 text-center text-sm font-black uppercase rounded-xl peer-checked:bg-black peer-checked:text-white peer-checked:border-black hover:border-gray-600 transition-all">
-                                                <span x-text="size.trim()"></span>
-                                            </div>
-                                        </label>
-                                    </template>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between mb-6">
-                                <label class="text-xs font-black uppercase tracking-wider text-gray-700">Quantity</label>
-                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider" x-text="'Stock: ' + selectedProduct.stock"></span>
-                            </div>
-                            <div class="flex items-center border-2 border-gray-300 rounded-xl p-2">
-                                <button type="button" @click="quantity = Math.max(1, quantity - 1)" class="px-4 py-2 font-black text-lg hover:bg-gray-100 rounded-lg transition-colors">-</button>
-                                <input type="number" name="quantity" x-model.number="quantity" min="1" :max="selectedProduct.stock" class="w-20 text-center font-black text-xl border-none focus:ring-0 bg-transparent" readonly>
-                                <button type="button" @click="quantity = Math.min(selectedProduct.stock, quantity + 1)" class="px-4 py-2 font-black text-lg hover:bg-gray-100 rounded-lg transition-colors">+</button>
-                            </div>
-                            <button type="submit" :disabled="selectedProduct.stock === 0" class="w-full bg-black text-white py-4 rounded-2xl font-black uppercase text-lg tracking-[0.1em] hover:bg-[#F53003] transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
-                                Add to Cart
-                            </button>
-                        </form>
+            <div x-show="openModal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" x-cloak x-transition>
+                <div @click.away="openModal = false" class="bg-white w-full max-w-md p-10 border-t-8 border-[#F53003] shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+                    <div class="relative w-full aspect-square bg-[#f6f6f6] mb-8 overflow-hidden flex items-center justify-center border border-gray-50">
+                        <template x-if="selectedProduct.image">
+                            <img :src="selectedProduct.image" :alt="selectedProduct.name" class="w-full h-full object-contain p-6 mix-blend-multiply">
+                        </template>
                     </div>
+
+                    <div class="text-center mb-8">
+                        <p class="text-[#F53003] text-[10px] font-black uppercase tracking-[0.4em] mb-2" x-text="selectedProduct.brand"></p>
+                        <h2 class="font-black italic uppercase tracking-tighter text-2xl mb-1 text-black" x-text="selectedProduct.name"></h2>
+                        <p class="text-lg font-bold text-gray-400" x-text="'₱' + parseFloat(selectedProduct.price).toLocaleString()"></p>
+                    </div>
+
+                    <form action="{{ route('cart.store') }}" method="POST" class="space-y-8">
+                        @csrf
+                        <input type="hidden" name="product_id" :value="selectedProduct.id">
+
+                        <div>
+                            <label class="text-[10px] font-black uppercase tracking-widest text-black block mb-4">Select Size</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <template x-for="size in selectedProduct.sizes ? selectedProduct.sizes.split(',') : []">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="size" :value="size.trim()" class="peer hidden" required>
+                                        <div class="border-2 border-gray-100 py-3 text-center text-[11px] font-black uppercase peer-checked:bg-black peer-checked:text-white hover:border-black transition-all">
+                                            <span x-text="size.trim()"></span>
+                                        </div>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-black">Quantity</label>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest" x-text="selectedProduct.stock + ' in stock'"></span>
+                            </div>
+                            <div class="flex items-center border-2 border-black w-fit">
+                                <button type="button" @click="if(quantity > 1) quantity--" class="px-5 py-2 font-black text-xl hover:bg-gray-50">-</button>
+                                <input type="number" name="quantity" x-model="quantity" readonly class="w-16 text-center font-black text-sm border-none focus:ring-0 bg-transparent">
+                                <button type="button" @click="if(quantity < selectedProduct.stock) quantity++" class="px-5 py-2 font-black text-xl hover:bg-gray-50">+</button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-3">
+                            <button type="submit" :disabled="selectedProduct.stock <= 0" class="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 border border-black hover:bg-[#F53003] hover:border-[#F53003] disabled:opacity-50 transition-colors">
+                                Confirm & Add to Cart
+                            </button>
+                            <button type="button" @click="openModal = false" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black py-2 transition-colors">
+                                Close
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </main>
