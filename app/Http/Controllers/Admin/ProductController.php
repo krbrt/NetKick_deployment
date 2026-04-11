@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-// ✅ In-import ang Cloudinary Facade
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class ProductController extends Controller
 {
@@ -42,11 +40,10 @@ class ProductController extends Controller
         $brand    = ($request->brand === 'OTHER') ? $request->new_brand : $request->brand;
         $category = ($request->category === 'NEW') ? $request->new_category : $request->category;
 
-        // ✅ Automatic upload sa Cloudinary
+        // ✅ Store in storage/app/public/products — persists on Laravel Cloud
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $result = $request->file('image')->storeOnCloudinary('products');
-            $imagePath = $result->getSecurePath(); // Kinukuha ang buong URL (https://res.cloudinary.com/...)
+            $imagePath = $request->file('image')->store('products', 'public');;
         }
 
         Product::create([
@@ -93,12 +90,12 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // ✅ Manual na pag-delete sa Cloudinary gamit ang Public ID (Optional)
-            // Note: Mas mainam i-extract ang Public ID kung gusto mo talagang maglinis ng files sa Cloudinary
-            
-            // Upload ng bagong image
-            $result = $request->file('image')->storeOnCloudinary('products');
-            $product->image = $result->getSecurePath();
+            // ✅ Delete old image from storage
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            // ✅ Store new image
+            $product->image = $request->file('image')->store('products', 'public');
         }
 
         $brand    = ($request->brand === 'OTHER') ? $request->new_brand : $request->brand;
@@ -124,8 +121,12 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        // Note: Ang pag-delete sa Cloudinary cloud ay nangangailangan ng Public ID. 
-        // Kung URL lang ang naka-save, ma-de-delete ang record sa DB pero mananatili ang image sa cloud dashboard mo.
+
+        // ✅ Delete from storage
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
         $product->delete();
 
         return redirect()->route('admin.inventory')->with('success', 'Product deleted successfully!');
@@ -134,7 +135,28 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query();
-        // ... (nananatili ang iyong search/filter logic)
+
+        if ($request->has('brand')) {
+            $query->whereIn('brand', (array)$request->brand);
+        }
+        if ($request->has('category')) {
+            $query->whereIn('category', (array)$request->category);
+        }
+        if ($request->has('gender')) {
+            $query->whereIn('gender', (array)$request->gender);
+        }
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
+        if ($request->has('size')) {
+            $sizes = (array)$request->size;
+            $query->where(function ($q) use ($sizes) {
+                foreach ($sizes as $size) {
+                    $q->orWhere('sizes', 'LIKE', "%$size%");
+                }
+            });
+        }
+
         $products = $query->latest()->paginate(12);
         return view('products.index', compact('products'));
     }
