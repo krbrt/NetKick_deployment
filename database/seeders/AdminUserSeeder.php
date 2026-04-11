@@ -8,15 +8,16 @@ use App\Models\User;
 
 class AdminUserSeeder extends Seeder
 {
-    public function run(): void
-    {
-        User::create([
+   public function run(): void
+{
+    User::firstOrCreate(
+        ['email' => 'admin@netkicks.com'],
+        [
             'name'              => 'Admin',
-            'email'             => 'admin@netkicks.com',
             'password'          => Hash::make('admin123'),
             'usertype'          => 'admin',
             'email_verified_at' => now(),
-        ]);
-
-    }
+        ]
+    );
+}
 }
