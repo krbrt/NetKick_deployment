@@ -9,6 +9,7 @@
     ],
     "license": "MIT",
     "require": {
+        "league/flysystem-aws-s3-v3": "^3.0",
         "php": "^8.2",
         "bacon/bacon-qr-code": "^3.0",
         "guzzlehttp/guzzle": "^7.9",
