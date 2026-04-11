@@ -53,4 +53,53 @@
 
         </div>
     </div>
+        <footer class="bg-black text-white pt-24 pb-12 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
+            <div class="flex flex-col items-center md:items-start">
+                <h2 class="text-4xl font-black italic mb-2 tracking-tighter text-[#F53003]">NETKICKS</h2>
+                <p class="text-[10px] text-gray-500 uppercase font-bold tracking-[0.3em]">Footwear | Clothes | Apparel</p>
+            </div>
+
+            @php
+                $footerLinks = [
+                    'Contact' => [
+                        'Facebook' => 'https://www.facebook.com/profile.php?id=61555962290158',
+                        'Email'    => 'mailto:support@netkicks.com',
+                    ],
+                    'Shop' => [
+                        'New & Featured' => 'hn.featured',
+                        'Clothes'        => 'hn.clothes',
+                        'Shoes'          => 'hn.shoes',
+                        'Crocs'          => 'hn.crocs',
+                        'Sale'           => 'hn.sale',
+                    ],
+                    'Company' => [
+                        'Privacy Policy' => 'privacy',
+                        'Terms'          => 'terms',
+                        'About Us'       => 'about',
+                    ],
+                ];
+            @endphp
+
+            @foreach($footerLinks as $title => $links)
+            <div>
+                <h4 class="font-bold mb-6 uppercase text-[11px] tracking-widest text-white/50">{{ $title }}</h4>
+                <ul class="text-gray-400 text-xs space-y-3 font-bold uppercase tracking-wider">
+                    @foreach($links as $label => $url)
+                        <li>
+                            <a href="{{ Route::has($url) ? route($url) : $url }}"
+                               class="hover:text-[#F53003] transition-colors">
+                                {{ $label }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endforeach
+        </div>
+
+        <div class="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 text-center">
+            <p class="text-[9px] text-gray-600 uppercase font-black tracking-widest">© 2026 NETKICKS GLOBAL. All Rights Reserved.</p>
+        </div>
+    </footer>
 </x-guest-layout>

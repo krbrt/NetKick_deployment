@@ -50,16 +50,38 @@
                 <p class="text-[10px] text-gray-500 uppercase font-bold tracking-[0.3em]">Footwear | Clothes | Apparel</p>
             </div>
 
-            @foreach([
-'Contact' => ['https://www.facebook.com/profile.php?id=61555962290158', 'support@netkicks.com'],
-                'Shop' => ['New & Featured' => 'hn.featured', 'Clothes' => 'hn.clothes', 'Shoes' => 'hn.shoes', 'Crocs' => 'hn.crocs', 'Sale' => 'hn.sale'],
-                'Company' => ['Privacy Policy' => 'privacy', 'Terms' => 'terms', 'About Us' => 'about']
-            ] as $title => $links)
+            @php
+                $footerLinks = [
+                    'Contact' => [
+                        'Facebook' => 'https://www.facebook.com/profile.php?id=61555962290158',
+                        'Email'    => 'mailto:support@netkicks.com',
+                    ],
+                    'Shop' => [
+                        'New & Featured' => 'hn.featured',
+                        'Clothes'        => 'hn.clothes',
+                        'Shoes'          => 'hn.shoes',
+                        'Crocs'          => 'hn.crocs',
+                        'Sale'           => 'hn.sale',
+                    ],
+                    'Company' => [
+                        'Privacy Policy' => 'privacy',
+                        'Terms'          => 'terms',
+                        'About Us'       => 'about',
+                    ],
+                ];
+            @endphp
+
+            @foreach($footerLinks as $title => $links)
             <div>
                 <h4 class="font-bold mb-6 uppercase text-[11px] tracking-widest text-white/50">{{ $title }}</h4>
                 <ul class="text-gray-400 text-xs space-y-3 font-bold uppercase tracking-wider">
                     @foreach($links as $label => $url)
-                        <li><a href="{{ Route::has($url) ? route($url) : $url }}" class="hover:text-[#F53003] transition">{{ is_numeric($label) ? $url : $label }}</a></li>
+                        <li>
+                            <a href="{{ Route::has($url) ? route($url) : $url }}"
+                               class="hover:text-[#F53003] transition-colors">
+                                {{ $label }}
+                            </a>
+                        </li>
                     @endforeach
                 </ul>
             </div>

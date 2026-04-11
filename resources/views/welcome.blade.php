@@ -64,7 +64,7 @@
 
                         {{-- ✅ Fixed: use Storage::url() for uploaded images --}}
                         @if($product->image)
-                            <img src="{{ Storage::url($product->image) }}"
+                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}"
                                  alt="{{ $product->name }}"
                                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                  loading="lazy">

@@ -93,20 +93,21 @@
                     <div class="bg-gray-50 rounded-[2.5rem] p-8 sticky top-24 border border-gray-100">
                         <h2 class="text-xl font-black uppercase italic mb-8">Order Summary</h2>
 
-                        <div class="space-y-6 max-h-80 overflow-y-auto pr-2 mb-8 custom-scrollbar">
-                            @foreach($cartItems as $id => $details)
-                                <div class="flex items-center gap-4">
-                                    <div class="w-20 h-20 bg-white rounded-2xl overflow-hidden flex-shrink-0 border border-gray-100">
-                                        <img src="{{ asset($details['image']) }}" class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1">
-                                        <h3 class="text-[11px] font-black uppercase leading-tight tracking-tight">{{ $details['name'] }}</h3>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase mt-1">Size: {{ $details['size'] }} | Qty: {{ $details['quantity'] }}</p>
-                                    </div>
-                                    <span class="text-xs font-black">₱{{ number_format($details['price'] * $details['quantity']) }}</span>
-                                </div>
-                            @endforeach
-                        </div>
+<div class="space-y-6 max-h-80 overflow-y-auto pr-2 mb-8 custom-scrollbar">
+    @foreach($cartItems as $id => $details)
+        <div class="flex items-center gap-4">
+            <div class="w-20 h-20 bg-white rounded-2xl overflow-hidden flex-shrink-0 border border-gray-100">
+                {{-- FIXED: Added 'storage/' path and a fallback for missing images --}}
+                <img src="{{ !empty($details['image']) ? asset('storage/' . $details['image']) : asset('images/no-image.png') }}" class="w-full h-full object-cover" alt="{{ $details['name'] }}">
+            </div>
+            <div class="flex-1">
+                <h3 class="text-[11px] font-black uppercase leading-tight tracking-tight">{{ $details['name'] }}</h3>
+                <p class="text-[10px] text-gray-400 font-bold uppercase mt-1">Size: {{ $details['size'] }} | Qty: {{ $details['quantity'] }}</p>
+            </div>
+            <span class="text-xs font-black">₱{{ number_format($details['price'] * $details['quantity']) }}</span>
+        </div>
+    @endforeach
+</div>
 
                         <div class="border-t border-gray-200 pt-6 space-y-3">
                             <div class="flex justify-between text-gray-500 text-[10px] font-black uppercase tracking-widest">

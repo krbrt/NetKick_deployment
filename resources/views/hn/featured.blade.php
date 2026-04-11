@@ -102,7 +102,7 @@
                     {{-- Image Container --}}
                     <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
                         @if($product->image)
-                            <img src="{{ asset('images/products/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
+                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
                         @endif
                         @if($product->quality)
                         <div class="absolute top-0 left-0 bg-[#F53003] text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
@@ -130,18 +130,18 @@
                     </div>
 
                     <div class="mt-auto">
-                        @auth
-                            <div class="flex flex-col sm:flex-row gap-2">
-                                <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
-                                        class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
-                                    Add to Cart
-                                </button>
-                                <button @click="openModal = true; quantity = 1; selectedProduct = { id: '{{ $product->id }}', name: '{{ addslashes($product->name) }}', price: '{{ $product->price }}', sizes: '{{ $product->sizes }}', brand: '{{ $product->brand }}', stock: {{ $product->quantity }}, image: '{{ asset($product->image) }}' }"
-                                        class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
-                                    Buy Now
-                                </button>
-                            </div>
-                        @else
+@auth
+    <div class="flex flex-col sm:flex-row gap-2">
+        <button @click="openModal = true; quantity = 1; selectedProduct = { id: {{ $product->id }}, name: @js($product->name), price: {{ $product->price }}, sizes: @js($product->sizes), brand: @js($product->brand), stock: {{ $product->quantity }}, image: @js(asset($product->image)) }"
+                class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
+            Add to Cart
+        </button>
+        <button @click="openModal = true; quantity = 1; selectedProduct = { id: {{ $product->id }}, name: @js($product->name), price: {{ $product->price }}, sizes: @js($product->sizes), brand: @js($product->brand), stock: {{ $product->quantity }}, image: @js(asset($product->image)) }"
+                class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
+            Buy Now
+        </button>
+    </div>
+@else
                             <a href="{{ route('login') }}" class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
                                 Sign in to Shop
                             </a>
@@ -227,16 +227,38 @@
                 <p class="text-[10px] text-gray-500 uppercase font-bold tracking-[0.3em]">Footwear | Clothes | Apparel</p>
             </div>
 
-            @foreach([
-                'Contact' => ['https://www.facebook.com/profile.php?id=61555962290158', 'support@netkicks.com'],
-                'Shop' => ['New & Featured' => 'hn.featured', 'Clothes' => 'hn.clothes', 'Shoes' => 'hn.shoes', 'Crocs' => 'hn.crocs', 'Sale' => 'hn.sale'],
-                'Company' => ['Privacy Policy' => 'privacy', 'Terms' => 'terms', 'About Us' => 'about']
-            ] as $title => $links)
+            @php
+                $footerLinks = [
+                    'Contact' => [
+                        'Facebook' => 'https://www.facebook.com/profile.php?id=61555962290158',
+                        'Email'    => 'mailto:support@netkicks.com',
+                    ],
+                    'Shop' => [
+                        'New & Featured' => 'hn.featured',
+                        'Clothes'        => 'hn.clothes',
+                        'Shoes'          => 'hn.shoes',
+                        'Crocs'          => 'hn.crocs',
+                        'Sale'           => 'hn.sale',
+                    ],
+                    'Company' => [
+                        'Privacy Policy' => 'privacy',
+                        'Terms'          => 'terms',
+                        'About Us'       => 'about',
+                    ],
+                ];
+            @endphp
+
+            @foreach($footerLinks as $title => $links)
             <div>
                 <h4 class="font-bold mb-6 uppercase text-[11px] tracking-widest text-white/50">{{ $title }}</h4>
                 <ul class="text-gray-400 text-xs space-y-3 font-bold uppercase tracking-wider">
                     @foreach($links as $label => $url)
-                        <li><a href="{{ Route::has($url) ? route($url) : $url }}" class="hover:text-[#F53003] transition">{{ is_numeric($label) ? $url : $label }}</a></li>
+                        <li>
+                            <a href="{{ Route::has($url) ? route($url) : $url }}"
+                               class="hover:text-[#F53003] transition-colors">
+                                {{ $label }}
+                            </a>
+                        </li>
                     @endforeach
                 </ul>
             </div>

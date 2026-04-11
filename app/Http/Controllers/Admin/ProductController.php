@@ -43,7 +43,7 @@ class ProductController extends Controller
         // ✅ Store in storage/app/public/products — persists on Laravel Cloud
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
+            $imagePath = $request->file('image')->store('products', 'public');;
         }
 
         Product::create([
