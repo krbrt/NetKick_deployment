@@ -7,8 +7,9 @@
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800" rel="stylesheet" />
+
+    {{-- ✅ Only use Vite — removed duplicate CDN Tailwind which conflicts in production --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
         body { font-family: 'Instrument Sans', sans-serif; }
@@ -37,17 +38,13 @@
                 </div>
             </div>
 
-<div class="md:w-1/2">
-    {{-- Update: Replaced the complex overlays with a simple, high-impact image --}}
-    <div class="rounded-3xl shadow-2xl overflow-hidden aspect-[4/3] relative group border-4 border-white/10">
-
-        {{-- Fixed: Standard Laravel asset path to public/images/shom_img.jpg --}}
-        <img src="{{ asset('images/shop_img.jpg') }}"
-             alt="Netkicks Featured Product Vault"
-             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-
-    </div>
-
+            <div class="md:w-1/2">
+                <div class="rounded-3xl shadow-2xl overflow-hidden aspect-[4/3] relative group border-4 border-white/10">
+                    <img src="{{ asset('images/shop_img.jpg') }}"
+                         alt="Netkicks Featured Product Vault"
+                         class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                </div>
+            </div>
         </div>
     </header>
 
@@ -65,8 +62,13 @@
             @forelse($products as $product)
                 <div class="bg-white border border-gray-100 rounded-2xl p-4 hover:shadow-2xl hover:-translate-y-1 transition-all group">
                     <div class="h-48 flex items-center justify-center mb-4 bg-gray-50 rounded-xl overflow-hidden relative">
+
+                        {{-- ✅ Fixed: use Storage::url() for uploaded images --}}
                         @if($product->image)
-                            <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <img src="{{ Storage::url($product->image) }}"
+                                 alt="{{ $product->name }}"
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                 loading="lazy">
                         @else
                             <div class="text-[10px] text-gray-300 font-black uppercase italic">No Preview</div>
                         @endif
@@ -76,8 +78,8 @@
                             <span class="bg-black text-white text-[8px] font-black px-2 py-1 rounded uppercase italic tracking-tighter">{{ $product->brand }}</span>
                         </div>
 
-                        {{-- Sale Badge Logic --}}
-                        @if($product->old_price > $product->price)
+                        {{-- ✅ Fixed: use is_on_sale + isSaleActive() instead of old_price --}}
+                        @if($product->isSaleActive())
                             <div class="absolute top-3 right-3">
                                 <span class="bg-[#F53003] text-white text-[8px] font-black px-2 py-1 rounded uppercase">Sale</span>
                             </div>
@@ -85,12 +87,15 @@
                     </div>
 
                     <h3 class="font-bold text-[13px] uppercase tracking-tight text-gray-900 truncate">{{ $product->name }}</h3>
+
                     <div class="flex items-center gap-2 my-1">
                         <p class="text-[#F53003] font-black text-[13px]">₱{{ number_format($product->price, 2) }}</p>
-                        @if($product->old_price > $product->price)
-                            <p class="text-gray-400 line-through text-[10px]">₱{{ number_format($product->old_price, 2) }}</p>
+                        {{-- ✅ Fixed: use original_price instead of old_price --}}
+                        @if($product->isSaleActive() && $product->original_price)
+                            <p class="text-gray-400 line-through text-[10px]">₱{{ number_format($product->original_price, 2) }}</p>
                         @endif
                     </div>
+
                     <p class="text-[10px] text-gray-400 mb-4 font-bold uppercase tracking-widest">{{ $product->category }}</p>
 
                     @auth
@@ -123,15 +128,38 @@
                 <p class="text-[10px] text-gray-500 uppercase font-bold tracking-[0.3em]">Footwear | Clothes | Apparel</p>
             </div>
 
-            @foreach([
-'Contact' => ['https://www.facebook.com/profile.php?id=61555962290158', 'support@netkicks.com'],
-                'Shop' => ['New & Featured' => 'hn.featured', 'Clothes' => 'hn.clothes', 'Shoes' => 'hn.shoes', 'Crocs' => 'hn.crocs', 'Sale' => 'hn.sale'],
-                'Company' => ['Privacy Policy' => 'privacy', 'Terms' => 'terms', 'About Us' => 'about']            ] as $title => $links)
+            @php
+                $footerLinks = [
+                    'Contact' => [
+                        'Facebook' => 'https://www.facebook.com/profile.php?id=61555962290158',
+                        'Email'    => 'mailto:support@netkicks.com',
+                    ],
+                    'Shop' => [
+                        'New & Featured' => 'hn.featured',
+                        'Clothes'        => 'hn.clothes',
+                        'Shoes'          => 'hn.shoes',
+                        'Crocs'          => 'hn.crocs',
+                        'Sale'           => 'hn.sale',
+                    ],
+                    'Company' => [
+                        'Privacy Policy' => 'privacy',
+                        'Terms'          => 'terms',
+                        'About Us'       => 'about',
+                    ],
+                ];
+            @endphp
+
+            @foreach($footerLinks as $title => $links)
             <div>
                 <h4 class="font-bold mb-6 uppercase text-[11px] tracking-widest text-white/50">{{ $title }}</h4>
                 <ul class="text-gray-400 text-xs space-y-3 font-bold uppercase tracking-wider">
                     @foreach($links as $label => $url)
-                        <li><a href="{{ Route::has($url) ? route($url) : $url }}" class="hover:text-[#F53003] transition">{{ is_numeric($label) ? $url : $label }}</a></li>
+                        <li>
+                            <a href="{{ Route::has($url) ? route($url) : $url }}"
+                               class="hover:text-[#F53003] transition-colors">
+                                {{ $label }}
+                            </a>
+                        </li>
                     @endforeach
                 </ul>
             </div>
