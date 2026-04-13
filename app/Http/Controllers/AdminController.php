@@ -143,7 +143,7 @@ $revenue = \App\Models\OrderItem::whereHas('order', function($q) { $q->whereNotI
 
         $product = Product::findOrFail($request->product_id);
         $originalPrice = $product->price;
-        $salePrice = $request->sale_price ?? ($originalPrice * 0.9);
+            $salePrice = $originalPrice * (1 - ($request->discount_percentage ?? 10) / 100);
         $discountPercentage = round((($originalPrice - $salePrice) / $originalPrice) * 100);
 
         $product->update([
@@ -173,12 +173,13 @@ $revenue = \App\Models\OrderItem::whereHas('order', function($q) { $q->whereNotI
         } else {
             $oldPrice = $product->price;
             $newPrice = $oldPrice * 0.9;
+            $discountPct = 10; // Default 10%
 
             $product->update([
                 'is_on_sale' => true,
                 'original_price' => $oldPrice,
                 'price' => $newPrice,
-                'discount_percentage' => 10
+                'discount_percentage' => $discountPct
             ]);
             $msg = 'Item deployed to Sale Vault at 10% discount.';
         }

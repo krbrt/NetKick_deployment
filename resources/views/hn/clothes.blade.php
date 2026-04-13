@@ -121,63 +121,80 @@
 </aside>
 
 {{-- Main Content --}}
-        <main class="flex-1" x-data="{
-            openModal: false,
-            selectedProduct: { id: '', name: '', price: 0, sizes: '', brand: '', stock: 0, image: '' },
-            quantity: 1
-        }">
+        <main class="flex-1">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
                 @forelse ($products->filter(fn($product) => $product->quality) as $product)
-                <div class="flex flex-col group">
-                    {{-- Image Container --}}
+
+                @php
+                    $imageUrl = $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png');
+                    $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
+                    $defaultSize = count($productSizes) > 0 ? trim($productSizes[0]) : '';
+                @endphp
+
+                {{-- Wrapper handles the Size Selection State via Alpine --}}
+                <div x-data="{ selectedSize: '{{ $defaultSize }}' }" class="flex flex-col group h-full">
+
+                    {{-- Image --}}
                     <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
-                        @if($product->image)
-                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
-                        @endif
+                        <img src="{{ $imageUrl }}" alt="{{ $product->name }}"
+                             class="w-full h-full object-contain p-4 mix-blend-multiply" loading="lazy">
                         @if($product->quality)
-                        <div class="absolute top-0 left-0 bg-[#F53003] text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
-                            {{ $product->quality }}
-                        </div>
+                            <div class="absolute top-0 left-0 bg-[#F53003] text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
+                                {{ $product->quality }}
+                            </div>
                         @endif
                     </div>
 
-                    {{-- Product Info --}}
+                    {{-- Product Info & Interactive Sizes --}}
                     <div class="mb-6 text-center">
                         <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
                         <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
-                        <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
+                        <p class="text-xs font-bold text-gray-400 italic mb-4">₱{{ number_format($product->price, 2) }}</p>
 
+                        {{-- Selectable Sizes (Updates the Alpine State) --}}
                         <div class="flex flex-wrap justify-center gap-1.5 px-2">
-                            @php
-                                $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
-                            @endphp
                             @foreach($productSizes as $size)
-                                <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
+                                <button type="button" 
+                                        @click="selectedSize = '{{ trim($size) }}'"
+                                        :class="selectedSize === '{{ trim($size) }}' ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
+                                        class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none">
                                     {{ trim($size) }}
-                                </span>
+                                </button>
                             @endforeach
                         </div>
                     </div>
 
+                    {{-- Actions --}}
                     <div class="mt-auto">
-@auth
-    <div class="flex flex-col sm:flex-row gap-2">
-        <button @click="openModal = true; quantity = 1; selectedProduct = { id: {{ $product->id }}, name: @js($product->name), price: {{ $product->price }}, sizes: @js($product->sizes), brand: @js($product->brand), stock: {{ $product->quantity }}, image: @js(asset($product->image)) }"
-                class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
-            Add to Cart
-        </button>
-        <button @click="openModal = true; quantity = 1; selectedProduct = { id: {{ $product->id }}, name: @js($product->name), price: {{ $product->price }}, sizes: @js($product->sizes), brand: @js($product->brand), stock: {{ $product->quantity }}, image: @js(asset($product->image)) }"
-                class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
-            Buy Now
-        </button>
-    </div>
-@else
-      
-                            <a href="{{ route('login') }}" class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
+                        @auth
+                            <form action="{{ route('cart.store') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                {{-- Dynamically bind the selected size --}}
+                                <input type="hidden" name="size" :value="selectedSize"> 
+
+<div class="flex flex-col sm:flex-row gap-2">
+    <button type="submit"
+        class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
+        Add to Cart
+    </button>
+    
+    {{-- Dynamically injects selected size to checkout route --}}
+    <a :href="`{{ route('checkout.index') }}?product_id={{ $product->id }}&size=${selectedSize}`"
+         class="w-full block text-center bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
+        Buy Now
+    </a>
+</div>
+                            </form>
+                        @else
+                            <a href="{{ route('login') }}"
+                               class="block text-center flex items-center justify-center h-12 border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] mt-4 hover:bg-black hover:text-white transition-all">
                                 Sign in to Shop
                             </a>
                         @endauth
                     </div>
+
                 </div>
                 @empty
                     <div class="col-span-full py-20 text-center">
@@ -186,69 +203,13 @@
                 @endforelse
 
                 @if($products->hasPages())
-                <div class="flex justify-center mt-20 col-span-full">
-                    {{ $products->links('pagination::tailwind') }}
-                </div>
+                    <div class="flex justify-center mt-20 col-span-full">
+                        {{ $products->links('pagination::tailwind') }}
+                    </div>
                 @endif
             </div>
-
-            {{-- Modal --}}
-            <div x-show="openModal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" x-cloak x-transition>
-                <div @click.away="openModal = false" class="bg-white w-full max-w-md p-10 border-t-8 border-[#F53003] shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-                    <div class="relative w-full aspect-square bg-[#f6f6f6] mb-8 overflow-hidden flex items-center justify-center border border-gray-50">
-                        <template x-if="selectedProduct.image">
-                            <img :src="selectedProduct.image" :alt="selectedProduct.name" class="w-full h-full object-contain p-6 mix-blend-multiply">
-                        </template>
-                    </div>
-
-                    <div class="text-center mb-8">
-                        <p class="text-[#F53003] text-[10px] font-black uppercase tracking-[0.4em] mb-2" x-text="selectedProduct.brand"></p>
-                        <h2 class="font-black italic uppercase tracking-tighter text-2xl mb-1 text-black" x-text="selectedProduct.name"></h2>
-                        <p class="text-lg font-bold text-gray-400" x-text="'₱' + parseFloat(selectedProduct.price).toLocaleString()"></p>
-                    </div>
-
-                    <form action="{{ route('cart.store') }}" method="POST" class="space-y-8">
-                        @csrf
-                        <input type="hidden" name="product_id" :value="selectedProduct.id">
-
-                        <div>
-                            <label class="text-[10px] font-black uppercase tracking-widest text-black block mb-4">Select Size</label>
-                            <div class="grid grid-cols-4 gap-2">
-                                <template x-for="size in selectedProduct.sizes ? selectedProduct.sizes.split(',') : []">
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="size" :value="size.trim()" class="peer hidden" required>
-                                        <div class="border-2 border-gray-100 py-3 text-center text-[11px] font-black uppercase peer-checked:bg-black peer-checked:text-white hover:border-black transition-all">
-                                            <span x-text="size.trim()"></span>
-                                        </div>
-                                    </label>
-                                </template>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between items-center mb-4">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-black">Quantity</label>
-                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest" x-text="selectedProduct.stock + ' in stock'"></span>
-                            </div>
-                            <div class="flex items-center border-2 border-black w-fit">
-                                <button type="button" @click="if(quantity > 1) quantity--" class="px-5 py-2 font-black text-xl hover:bg-gray-50">-</button>
-                                <input type="number" name="quantity" x-model="quantity" readonly class="w-16 text-center font-black text-sm border-none focus:ring-0 bg-transparent">
-                                <button type="button" @click="if(quantity < selectedProduct.stock) quantity++" class="px-5 py-2 font-black text-xl hover:bg-gray-50">+</button>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col gap-3">
-                            <button type="submit" :disabled="selectedProduct.stock <= 0"  class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
-                                Confirm & Add to Cart
-                            </button>
-                            <button type="button" @click="openModal = false" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black py-2 transition-colors">
-                                Close
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
         </main>
+
 
     </div>
 

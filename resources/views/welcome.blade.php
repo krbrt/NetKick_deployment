@@ -48,81 +48,91 @@
     </header>
 
     {{-- Featured Section --}}
-    <section class="max-w-7xl mx-auto px-6 py-20 -mt-12 relative z-10">
-        <div class="flex justify-between items-end mb-12">
-            <div>
-                <p class="text-[#F53003] text-[10px] font-black uppercase tracking-[0.4em] mb-2">selection</p>
-                <h2 class="text-4xl font-black uppercase tracking-tighter">Featured Products</h2>
-            </div>
-            <a href="{{ route('hn.featured') }}" class="text-[11px] font-black uppercase tracking-widest border-b-2 border-[#F53003] pb-1 hover:text-[#F53003] transition-colors">View All</a>
+<section class="max-w-7xl mx-auto px-6 py-20 -mt-12 relative z-10">
+    <div class="flex justify-between items-end mb-12">
+        <div>
+            <p class="text-[#F53003] text-[10px] font-black uppercase tracking-[0.4em] mb-2">selection</p>
+            <h2 class="text-4xl font-black uppercase tracking-tighter">Featured Products</h2>
         </div>
+        <a href="{{ route('hn.featured') }}" class="text-[11px] font-black uppercase tracking-widest border-b-2 border-[#F53003] pb-1 hover:text-[#F53003] transition-colors">View All</a>
+    </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                @forelse ($products->filter(fn($product) => $product->quality) as $product)
-                <div class="flex flex-col group">
-                    {{-- Image Container --}}
-                    <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
-                        @if($product->image)
-                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
-                        @endif
-                        @if($product->quality)
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        @forelse ($products->filter(fn($product) => $product->quality) as $product)
+            {{-- Added x-data to manage the state for each product card --}}
+            <div class="flex flex-col group" x-data="{ selectedSize: '' }">
+                {{-- Image Container --}}
+                <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
+                    @if($product->image)
+                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
+                    @else
+                        <img src="{{ asset('images/no-image.png') }}" alt="No image available" class="w-full h-full object-contain p-4 mix-blend-multiply">
+                    @endif
+                    
+                    @if($product->quality)
                         <div class="absolute top-0 left-0 bg-[#F53003] text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
                             {{ $product->quality }}
                         </div>
+                    @endif
+                </div>
+
+                {{-- Product Info --}}
+                <div class="mb-6 text-center">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
+                    <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
+                    
+                    {{-- Price Display --}}
+                    <div class="flex justify-center gap-2 items-center mb-3">
+                        <span class="text-lg font-black text-[#F53003]">₱{{ number_format($product->price, 2) }}</span>
+                        @if($product->original_price)
+                            <span class="text-sm font-normal text-gray-400 line-through">₱{{ number_format($product->original_price, 2) }}</span>
                         @endif
                     </div>
 
-                    {{-- Product Info --}}
-                    <div class="mb-6 text-center">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
-                        <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
-                        <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
-
-                        <div class="flex flex-wrap justify-center gap-1.5 px-2">
-                            @php
-                                $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
-                            @endphp
-                            @foreach($productSizes as $size)
-                                <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
-                                    {{ trim($size) }}
-                                </span>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <h3 class="font-bold text-[13px] uppercase tracking-tight text-gray-900 truncate">{{ $product->name }}</h3>
-
-                    <div class="flex items-center gap-2 my-1">
-                        <p class="text-[#F53003] font-black text-[13px]">₱{{ number_format($product->price, 2) }}</p>
-                        {{-- ✅ Fixed: use original_price instead of old_price --}}
-                        @if($product->isSaleActive() && $product->original_price)
-                            <p class="text-gray-400 line-through text-[10px]">₱{{ number_format($product->original_price, 2) }}</p>
-                        @endif
-                    </div>
-
-                    <p class="text-[10px] text-gray-400 mb-4 font-bold uppercase tracking-widest">{{ $product->category }}</p>
-
-                    @auth
-                        <form action="{{ route('cart.store') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <button type="submit" class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
-                                Add To Cart
+                    {{-- Size Selector --}}
+                    <div class="flex flex-wrap justify-center gap-1.5 px-2">
+@php
+                            $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
+                            $sizes = $productSizes;
+                        @endphp
+                        @foreach($sizes as $size)
+                            <button type="button" 
+                                    @click="selectedSize = '{{ trim($size) }}'"
+                                    :class="selectedSize === '{{ trim($size) }}' ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
+                                    class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none">
+                                {{ trim($size) }}
                             </button>
-                        </form>
-                    @else
-                        <a href="{{ route('login') }}" class="inline-block bg-gray-100 text-gray-500 text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-black hover:text-white transition w-full text-center">
-                            Sign in to Buy
-                        </a>
-                    @endauth
+                        @endforeach
+                    </div>
                 </div>
-            @empty
-                <div class="col-span-full text-center py-20 border-2 border-dashed border-gray-100 rounded-3xl">
-                    <p class="text-gray-300 italic font-black uppercase tracking-[0.3em] text-sm">The vault is currently empty.</p>
-                </div>
-            @endforelse
-        </div>
-    </section>
+
+                @auth
+                    <form action="{{ route('cart.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        {{-- Added hidden input to bind the Alpine.js selectedSize to the form submission --}}
+                        <input type="hidden" name="size" :value="selectedSize" required>
+                        
+                        <button type="submit" 
+                                ::disabled="!selectedSize"
+                                :class="!selectedSize ? 'opacity-50 cursor-not-allowed' : ''"
+                                class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
+                            <span x-text="selectedSize ? 'Add To Cart' : 'Select Size'"></span>
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="inline-block bg-gray-100 text-gray-500 text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-black hover:text-white transition w-full text-center">
+                        Sign in to Buy
+                    </a>
+                @endauth
+            </div>
+        @empty
+            <div class="col-span-full text-center py-20 border-2 border-dashed border-gray-100 rounded-3xl">
+                <p class="text-gray-300 italic font-black uppercase tracking-[0.3em] text-sm">The vault is currently empty.</p>
+            </div>
+        @endforelse
+    </div>
+</section>
 
     {{-- Footer --}}
     <footer class="bg-black text-white pt-24 pb-12 px-6">
