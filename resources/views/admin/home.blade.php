@@ -44,12 +44,6 @@
             </div>
         </div>
 
-        {{-- Test Checkout Button --}}
-        <div class="mb-12">
-            <a href="{{ route('checkout.index') }}" class="inline-block bg-white text-black py-5 px-12 rounded-2xl font-black uppercase italic tracking-widest hover:bg-[#F53003] hover:text-white transition-all shadow-xl shadow-black/20 text-center active:scale-95">
-                Place Test Order (PayMongo Demo)
-            </a>
-        </div>
 
         {{-- Recent Transactions Feed --}}
         <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
