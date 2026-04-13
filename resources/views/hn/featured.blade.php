@@ -100,12 +100,13 @@
                 @forelse ($products->filter(fn($product) => $product->quality) as $product)
 
                 @php
-                    $imageUrl = $product->image
-                        ? asset('storage/' . $product->image)
-                        : asset('images/no-image.png');
+                    $imageUrl = $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png');
+                    $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
+                    $defaultSize = count($productSizes) > 0 ? trim($productSizes[0]) : '';
                 @endphp
 
-                <div class="flex flex-col group">
+                {{-- Wrapper handles the Size Selection State via Alpine --}}
+                <div x-data="{ selectedSize: '{{ $defaultSize }}' }" class="flex flex-col group h-full">
 
                     {{-- Image --}}
                     <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
@@ -118,18 +119,21 @@
                         @endif
                     </div>
 
-                    {{-- Product Info --}}
+                    {{-- Product Info & Interactive Sizes --}}
                     <div class="mb-6 text-center">
                         <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
                         <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
-                        <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
+                        <p class="text-xs font-bold text-gray-400 italic mb-4">₱{{ number_format($product->price, 2) }}</p>
 
+                        {{-- Selectable Sizes (Updates the Alpine State) --}}
                         <div class="flex flex-wrap justify-center gap-1.5 px-2">
-                            @php $productSizes = $product->sizes ? explode(',', $product->sizes) : []; @endphp
                             @foreach($productSizes as $size)
-                                <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
+                                <button type="button" 
+                                        @click="selectedSize = '{{ trim($size) }}'"
+                                        :class="selectedSize === '{{ trim($size) }}' ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
+                                        class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none">
                                     {{ trim($size) }}
-                                </span>
+                                </button>
                             @endforeach
                         </div>
                     </div>
@@ -140,37 +144,26 @@
                             <form action="{{ route('cart.store') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
-
-                                {{-- Size selector --}}
-                                @if(count($productSizes) > 0)
-                                <div class="flex flex-wrap justify-center gap-1.5 mb-3">
-                                    @foreach($productSizes as $size)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="size" value="{{ trim($size) }}" class="peer hidden" required>
-                                            <span class="block border border-gray-200 px-2 py-1 text-[9px] font-black uppercase peer-checked:bg-black peer-checked:text-white hover:border-black transition-all cursor-pointer">
-                                                {{ trim($size) }}
-                                            </span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                                @endif
-
                                 <input type="hidden" name="quantity" value="1">
+                                {{-- Dynamically bind the selected size --}}
+                                <input type="hidden" name="size" :value="selectedSize"> 
 
-                                <div class="flex flex-col sm:flex-row gap-2">
-                                    <button type="submit"
-                                            class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
-                                        Add to Cart
-                                    </button>
-                                    <a href="{{ route('checkout.index') }}?product_id={{ $product->id }}"
-                                       class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all text-center">
-                                        Buy Now
-                                    </a>
-                                </div>
+<div class="flex flex-col sm:flex-row gap-2">
+    <button type="submit"
+        class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
+        Add to Cart
+    </button>
+    
+    {{-- Dynamically injects selected size to checkout route --}}
+    <a :href="`{{ route('checkout.index') }}?product_id={{ $product->id }}&size=${selectedSize}`"
+         class="w-full block text-center bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
+        Buy Now
+    </a>
+</div>
                             </form>
                         @else
                             <a href="{{ route('login') }}"
-                               class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
+                               class="block text-center flex items-center justify-center h-12 border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] mt-4 hover:bg-black hover:text-white transition-all">
                                 Sign in to Shop
                             </a>
                         @endauth

@@ -57,7 +57,7 @@ class ProductController extends Controller
             'quantity'   => $request->quantity,
             'sizes'      => $request->sizes,
             'image'      => $imagePath,
-            'quality'    => $request->quality,
+'quality'    => $request->quality ?? null,
             'is_on_sale' => false,
         ]);
 
@@ -112,7 +112,7 @@ class ProductController extends Controller
             'quantity' => $request->quantity,
             'sizes'    => $request->sizes,
             'image'    => $product->image,
-            'quality'  => $request->quality,
+'quality'  => $request->quality ?? null,
         ]);
 
         return redirect()->route('admin.inventory')->with('success', 'Product updated successfully!');

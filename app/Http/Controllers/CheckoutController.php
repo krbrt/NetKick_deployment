@@ -64,7 +64,7 @@ class CheckoutController extends Controller
                 'last_name' => $request->last_name,
 'phone' => $request->phone,
                 'address' => $request->address,
-                'shipping_address' => $request->address,
+'shipping_address' => $request->address ?? $request->address,
                 'subtotal' => $total,
                 'discount_amount' => 0,
                 'total_amount' => $total,
