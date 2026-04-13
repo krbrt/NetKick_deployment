@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-app-layout>
     <div class="min-h-screen bg-white flex items-center justify-center px-6 py-20 font-sans">
         <div class="w-full max-w-3xl bg-[#f9f9f9] p-10 md:p-16 rounded-[2.5rem] border border-gray-100 shadow-sm">
             
@@ -125,4 +125,4 @@
             <p class="text-[9px] text-gray-600 uppercase font-black tracking-widest">© 2026 NETKICKS GLOBAL. All Rights Reserved.</p>
         </div>
     </footer>
-</x-guest-layout>
+</x-app-layout>
