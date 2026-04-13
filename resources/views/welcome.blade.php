@@ -58,31 +58,36 @@
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            @forelse($products as $product)
-                <div class="bg-white border border-gray-100 rounded-2xl p-4 hover:shadow-2xl hover:-translate-y-1 transition-all group">
-                    <div class="h-48 flex items-center justify-center mb-4 bg-gray-50 rounded-xl overflow-hidden relative">
-
-                        {{-- ✅ Fixed: use Storage::url() for uploaded images --}}
+                @forelse ($products->filter(fn($product) => $product->quality) as $product)
+                <div class="flex flex-col group">
+                    {{-- Image Container --}}
+                    <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
                         @if($product->image)
-                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}"
-                                 alt="{{ $product->name }}"
-                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                 loading="lazy">
-                        @else
-                            <div class="text-[10px] text-gray-300 font-black uppercase italic">No Preview</div>
+                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
                         @endif
-
-                        {{-- Floating Brand Badge --}}
-                        <div class="absolute top-3 left-3">
-                            <span class="bg-black text-white text-[8px] font-black px-2 py-1 rounded uppercase italic tracking-tighter">{{ $product->brand }}</span>
+                        @if($product->quality)
+                        <div class="absolute top-0 left-0 bg-[#F53003] text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
+                            {{ $product->quality }}
                         </div>
-
-                        {{-- ✅ Fixed: use is_on_sale + isSaleActive() instead of old_price --}}
-                        @if($product->isSaleActive())
-                            <div class="absolute top-3 right-3">
-                                <span class="bg-[#F53003] text-white text-[8px] font-black px-2 py-1 rounded uppercase">Sale</span>
-                            </div>
                         @endif
+                    </div>
+
+                    {{-- Product Info --}}
+                    <div class="mb-6 text-center">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-[#F53003] mb-1">{{ $product->brand }}</p>
+                        <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
+                        <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
+
+                        <div class="flex flex-wrap justify-center gap-1.5 px-2">
+                            @php
+                                $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
+                            @endphp
+                            @foreach($productSizes as $size)
+                                <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
+                                    {{ trim($size) }}
+                                </span>
+                            @endforeach
+                        </div>
                     </div>
 
                     <h3 class="font-bold text-[13px] uppercase tracking-tight text-gray-900 truncate">{{ $product->name }}</h3>

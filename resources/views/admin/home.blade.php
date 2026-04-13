@@ -68,12 +68,13 @@
                             <thead>
                                 <tr class="text-[9px] font-black uppercase text-gray-600 tracking-[0.3em] border-b border-white/5 italic">
                                     <th class="pb-6 px-4">Asset ID</th>
+                                    <th class="pb-6 px-4">Ref No.</th> {{-- NEW COLUMN HEADER --}}
                                     <th class="pb-6 px-4">Customer</th>
                                     <th class="pb-6 px-4">Destination</th>
-                                    <th class="pb-6 px-4">Quantity</th> {{-- New Column --}}
+                                    <th class="pb-6 px-4">Quantity</th>
                                     <th class="pb-6 px-4">Payment</th>
                                     <th class="pb-6 px-4">Value</th>
-                                    <th class="pb-6 px-4 text-center">Fulfillment</th>
+                                    <th class="pb-6 px-4 text-center">Status</th>
                                     <th class="pb-6 px-4 text-right">Timestamp</th>
                                 </tr>
                             </thead>
@@ -81,6 +82,13 @@
                                 @foreach($transactions as $tx)
                                     <tr class="border-b border-white/[0.03] hover:bg-white/[0.02] transition-all cursor-pointer group" onclick="window.location.href = '{{ route('admin.orders.show', $tx->id) }}'">
                                         <td class="py-6 px-4 text-[#F53003] italic font-black">#{{ $tx->order_number ?? $tx->id }}</td>
+
+                                        {{-- NEW REFERENCE NUMBER CELL --}}
+                                        <td class="py-6 px-4">
+                                            <span class="bg-white/5 px-2 py-1 rounded text-gray-400 text-[9px] border border-white/5 font-mono tracking-widest">
+                                                {{ $tx->reference_number ?? '---' }}
+                                            </span>
+                                        </td>
 
                                         <td class="py-6 px-4">
                                             <span class="text-white italic">{{ $tx->first_name }} {{ $tx->last_name }}</span>
@@ -93,7 +101,6 @@
                                             </p>
                                         </td>
 
-                                        {{-- Quantity Data Cell --}}
                                         <td class="py-6 px-4">
                                             <span class="bg-[#1a1a1a] px-3 py-1 rounded-lg border border-white/5 text-white group-hover:border-[#F53003]/30 transition-all">
                                                 {{ $tx->items->sum('quantity') ?? $tx->total_items ?? 0 }} <span class="text-[9px] text-gray-500 italic">PCS</span>
@@ -120,9 +127,9 @@
                                         </td>
 
                                         <td class="py-6 px-4 text-center">
-                                            <span class="px-3 py-1.5 rounded-full text-[8px] font-black tracking-widest border
-                                                {{ $tx->status == 'completed'
-                                                    ? 'border-green-500/30 text-green-500 bg-green-500/5'
+                                            <span class="px-3 py-1.5 rounded-full text-[8px] font-black tracking-widest border 
+                                                {{ $tx->status == 'completed' 
+                                                    ? 'border-green-500/30 text-green-500 bg-green-500/5' 
                                                     : 'border-white/10 text-gray-500 bg-white/5' }}">
                                                 {{ strtoupper($tx->status) }}
                                             </span>

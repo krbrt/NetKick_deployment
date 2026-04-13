@@ -8,13 +8,19 @@
                 <h1 class="text-6xl font-black italic tracking-tighter uppercase leading-none text-white">
                     Order <span class="text-[#F53003]">#{{ $order->order_number }}</span>
                 </h1>
-                <p class="text-[10px] text-gray-500 font-black uppercase tracking-[0.4em] mt-4 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-[#F53003] animate-pulse"></span>
-                    Transaction Log • {{ $order->created_at->format('M d, Y') }}
-                </p>
+                <div class="flex items-center gap-6 mt-4">
+                    <p class="text-[10px] text-gray-500 font-black uppercase tracking-[0.4em] flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-[#F53003] animate-pulse"></span>
+                        Transaction Log • {{ $order->created_at->format('M d, Y') }}
+                    </p>
+                    {{-- Added Ref No to Header --}}
+                    <p class="text-[10px] text-white/40 font-black uppercase tracking-[0.4em] border-l border-white/10 pl-6">
+                        Ref: <span class="text-white">{{ $order->reference_number ?? 'N/A' }}</span>
+                    </p>
+                </div>
             </div>
-            <a href="{{ route('admin.home') }}" class="bg-[#111] border border-white/5 text-gray-400 hover:text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">
-                ← Back to Vault
+            <a href="{{ route('admin.orders.index') }}" class="bg-[#111] border border-white/5 text-gray-400 hover:text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">
+                ← Back to Manifest
             </a>
         </div>
 
@@ -32,11 +38,18 @@
                         <div class="w-1 h-3 bg-[#F53003]"></div> Customer Intelligence
                     </h2>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
                         <div>
                             <p class="text-[9px] font-black uppercase text-[#F53003] tracking-widest mb-2">Recipient</p>
                             <h3 class="text-2xl font-black italic text-white uppercase tracking-tighter">{{ $order->first_name }} {{ $order->last_name }}</h3>
                             <p class="text-gray-400 font-bold text-sm mt-1 tracking-tight">{{ $order->phone }}</p>
+                        </div>
+                        {{-- Added Reference Number explicitly in Intelligence section --}}
+                        <div>
+                            <p class="text-[9px] font-black uppercase text-[#F53003] tracking-widest mb-2">Logistics ID</p>
+                            <p class="text-white font-mono font-bold text-sm tracking-widest uppercase bg-white/5 px-3 py-1 rounded-lg border border-white/5 inline-block">
+                                {{ $order->reference_number ?? 'NO REF' }}
+                            </p>
                         </div>
                         <div>
                             <p class="text-[9px] font-black uppercase text-[#F53003] tracking-widest mb-2">Shipping Destination</p>
@@ -51,7 +64,7 @@
                             @forelse($order->items as $item)
                                 <div class="flex items-center gap-6 p-4 bg-white/[0.02] border border-white/5 rounded-3xl hover:bg-white/[0.04] transition-all group">
                                     <div class="w-20 h-20 bg-black rounded-2xl overflow-hidden border border-white/10 flex-shrink-0">
-                                        <img src="{{ asset($item->product_image) }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+<img src="{{ $item->product_image ? asset($item->product_image) : 'images/no-image.png' }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                                     </div>
                                     <div class="flex-1">
                                         <h4 class="text-white font-black italic uppercase tracking-tighter">{{ $item->product_name }}</h4>
@@ -74,7 +87,7 @@
                 {{-- Financial Summary Card --}}
                 <div class="bg-[#111] border border-white/5 rounded-[2.5rem] p-8">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Total Value</p>
-                    <h2 class="text-5xl font-black italic tracking-tighter text-white">₱{{ number_format($order->items->sum(fn($i) => $i->price * $i->quantity), 2) }}</h2>
+                    <h2 class="text-5xl font-black italic tracking-tighter text-white">₱{{ number_format($order->total_amount, 2) }}</h2>
                     <div class="h-1 w-full bg-white/5 rounded-full mt-6 overflow-hidden">
                         <div class="h-full bg-[#F53003] w-full animate-pulse"></div>
                     </div>
@@ -113,7 +126,7 @@
         @media print {
             body { background: white !important; color: black !important; }
             .no-print, button, a, form { display: none !important; }
-            .bg-[#111] { borde  r: 1px solid #eee !important; background: transparent !important; }
+            .bg-[#111] { border: 1px solid #eee !important; background: transparent !important; }
             .text-white, .text-gray-400 { color: black !important; }
             .text-[#F53003] { color: #F53003 !important; }
         }

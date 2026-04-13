@@ -23,6 +23,7 @@
             <thead>
                 <tr class="text-[10px] uppercase font-black tracking-[0.2em] text-gray-500 px-4">
                     <th class="py-4 pl-6">Order ID</th>
+                    <th class="py-4">Ref No.</th> {{-- NEW COLUMN HEADER --}}
                     <th class="py-4">Customer</th>
                     <th class="py-4 text-center">Total Amount</th>
                     <th class="py-4 text-center">Status</th>
@@ -36,6 +37,13 @@
                     <td class="py-5 pl-6 rounded-l-2xl border-y border-l border-white/5 group-hover:border-[#F53003]/30">
                         <span class="text-[#F53003] font-black italic">#{{ $order->order_number }}</span>
                         <p class="text-[8px] text-gray-600 mt-0.5 tracking-normal">{{ $order->created_at->diffForHumans() }}</p>
+                    </td>
+
+                    {{-- Ref No. (NEW DATA CELL) --}}
+                    <td class="py-5 border-y border-white/5 group-hover:border-[#F53003]/30">
+                        <span class="bg-white/5 px-2 py-1 rounded text-gray-400 text-[9px] border border-white/5 font-mono tracking-widest">
+                            {{ $order->reference_number ?? '---' }}
+                        </span>
                     </td>
 
                     {{-- Customer Info --}}
@@ -53,7 +61,7 @@
 
                     {{-- Status Badge --}}
                     <td class="py-5 text-center border-y border-white/5 group-hover:border-[#F53003]/30">
-                        <span class="px-4 py-1.5 rounded-full text-[9px] font-black italic border
+                        <span class="px-4 py-1.5 rounded-full text-[9px] font-black italic border 
                             {{ $order->status === 'pending' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' : '' }}
                             {{ $order->status === 'processing' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : '' }}
                             {{ $order->status === 'shipped' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' : '' }}
@@ -65,7 +73,7 @@
 
                     {{-- Action Button --}}
                     <td class="py-5 pr-6 text-right rounded-r-2xl border-y border-r border-white/5 group-hover:border-[#F53003]/30">
-                        <a href="{{ route('admin.orders.show', $order->id) }}"
+                        <a href="{{ route('admin.orders.show', $order->id) }}" 
                            class="inline-block bg-[#2a2a2a] hover:bg-[#F53003] text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95">
                             Details
                         </a>
@@ -73,7 +81,8 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="py-20 text-center rounded-2xl bg-white/[0.02] border border-white/5">
+                    {{-- Changed colspan from 5 to 6 to account for the new column --}}
+                    <td colspan="6" class="py-20 text-center rounded-2xl bg-white/[0.02] border border-white/5">
                         <p class="text-gray-500 font-black uppercase italic tracking-widest text-[10px]">No incoming assets detected</p>
                     </td>
                 </tr>

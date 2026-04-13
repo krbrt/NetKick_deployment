@@ -12,9 +12,9 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_number', 'user_id', 'first_name', 'last_name', 'phone', 'address',
+        'order_number', 'user_id', 'first_name', 'last_name', 'phone', 'address', 'shipping_address',
         'subtotal', 'discount_amount', 'total_amount', 'voucher_code',
-'total_price', 'status', 'payment_method', 'notes'
+        'total_price', 'status', 'payment_method', 'notes'
     ];
 
     // Computed attribute for backward compatibility
@@ -36,4 +36,17 @@ class Order extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Extract GCash ref or payment notes for display
+     */
+    public function getReferenceNumberAttribute(): ?string
+    {
+        if (str_contains($this->notes ?? '', 'GCash Ref:')) {
+            preg_match('/GCash Ref:\s*([A-Za-z0-9]+)/', $this->notes, $matches);
+            return $matches[1] ?? null;
+        }
+        return null;
+    }
 }
+

@@ -2,90 +2,100 @@
     <div class="p-8 bg-[#0f0f0f] min-h-screen text-[#e5e5e5] font-sans">
         
         {{-- Header Section --}}
-        <div class="flex justify-between items-center mb-10">
+        <div class="flex justify-between items-end mb-10">
             <div>
-                <h1 class="text-4xl font-black uppercase italic tracking-tighter text-white">
+                <h1 class="text-6xl font-black uppercase italic tracking-tighter text-white leading-none">
                     Sale <span class="text-[#F53003]">Vault</span>
                 </h1>
-                <p class="text-[10px] font-bold text-[#F53003] uppercase tracking-[0.3em] mt-1">
-                    Inventory Management
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mt-4 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#F53003] animate-pulse"></span>
+                    Active Promotions Manifest
                 </p>
             </div>
             
-            <a href="{{ route('admin.inventory') }}" class="text-[11px] font-bold text-gray-400 uppercase tracking-widest hover:text-white transition-colors flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                Back to Inventory
+            <a href="{{ route('admin.inventory') }}" class="bg-[#111] border border-white/5 text-gray-400 hover:text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">
+                ← Back to Inventory
             </a>
         </div>
 
-        {{-- Quick Add Section (Styled like the "Add New Product" card) --}}
-        <div class="bg-[#1a1a1a] rounded-[2rem] p-8 border border-white/5 mb-10 shadow-2xl">
-            <h2 class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 mb-6">Quick Deploy to Vault</h2>
+        {{-- Quick Deploy Section --}}
+        <div class="bg-[#111] border border-white/5 rounded-[2.5rem] p-8 mb-10 relative overflow-hidden">
+            <h2 class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-6 flex items-center gap-3">
+                <div class="w-1 h-3 bg-[#F53003]"></div> Quick Deploy to Vault
+            </h2>
             
             <form action="{{ route('admin.sales.quick-add') }}" method="POST" class="flex flex-col md:flex-row gap-4">
                 @csrf
                 <div class="flex-1">
-                    <select name="product_id" class="w-full bg-[#121212] text-xs font-bold uppercase tracking-widest text-white border border-white/10 rounded-2xl py-5 px-6 focus:ring-2 focus:ring-[#F53003] focus:border-transparent transition-all appearance-none cursor-pointer">
-                        <option value="">Select Product Model to Push...</option>
+                    <select name="product_id" class="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-white text-[11px] font-black uppercase tracking-widest focus:border-[#F53003] focus:ring-0 appearance-none italic cursor-pointer">
+                        <option value="">Select Asset to Push...</option>
                         @foreach($otherProducts as $product)
-                            <option value="{{ $product->id }}">{{ $product->name }} (₱{{ number_format($product->price) }})</option>
+                            <option value="{{ $product->id }}">{{ $product->name }} — MSRP: ₱{{ number_format($product->price) }}</option>
                         @endforeach
                     </select>
                 </div>
                 
-                <button type="submit" class="bg-[#F53003] text-white text-[11px] font-black uppercase tracking-[0.2em] px-10 py-5 rounded-2xl hover:brightness-110 transition-all shadow-[0_10px_20px_rgba(245,48,3,0.2)]">
+                <button type="submit" class="bg-white text-black hover:bg-[#F53003] hover:text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-black/50">
                     Push to Sale
                 </button>
             </form>
         </div>
 
         {{-- Sales Table --}}
-        <div class="bg-[#1a1a1a] rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
-            <table class="w-full text-left border-collapse">
+        <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <table class="w-full text-left">
                 <thead>
-                    <tr class="border-b border-white/5 bg-black/20">
-                        <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 italic">Product Model</th>
-                        <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 italic">Vault Stock</th>
-                        <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 italic">Sale Price</th>
-                        <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 italic text-right">Actions</th>
+                    <tr class="border-b border-white/5 bg-black/40">
+                        <th class="px-10 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 italic">Asset Profile</th>
+                        <th class="px-10 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 italic text-center">Stock</th>
+                        <th class="px-10 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 italic text-center">Valuation</th>
+                        <th class="px-10 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 italic text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-white/[0.03]">
+                <tbody class="divide-y divide-white/[0.02]">
                     @forelse($salesItems as $item)
                     <tr class="group hover:bg-white/[0.02] transition-all">
-                        <td class="px-8 py-6">
+                        <td class="px-10 py-6">
                             <div class="flex items-center gap-6">
-                                <div class="w-16 h-16 rounded-2xl bg-[#121212] border border-white/5 p-3 group-hover:border-[#F53003]/30 transition-colors">
-                                    <img src="{{ asset($item->image) }}" class="w-full h-full object-contain filter drop-shadow-lg">
+                                <div class="relative w-16 h-16 bg-black rounded-2xl overflow-hidden border border-white/10 flex-shrink-0">
+                                    <img src="{{ asset($item->image) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                    @php
+                                        $discount = $item->original_price > 0 ? round((($item->original_price - $item->price) / $item->original_price) * 100) : 0;
+                                    @endphp
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                    <span class="absolute bottom-1 right-1 text-[#F53003] text-[8px] font-black italic">-{{ $discount }}%</span>
                                 </div>
                                 <div>
-                                    <p class="text-[9px] font-black text-[#F53003] uppercase tracking-tighter">{{ $item->brand }}</p>
-                                    <p class="text-sm font-black text-white uppercase tracking-tighter group-hover:text-[#F53003] transition-colors">{{ $item->name }}</p>
+                                    <p class="text-[9px] font-black text-[#F53003] uppercase tracking-widest mb-1">{{ $item->brand }}</p>
+                                    <h4 class="text-white font-black italic uppercase tracking-tighter">{{ $item->name }}</h4>
+                                    <p class="text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-1 italic">VLT-{{ str_pad($item->id, 4, '0', STR_PAD_LEFT) }}</p>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-8 py-6">
-                            <span class="text-xs font-black px-4 py-2 bg-[#121212] rounded-xl border border-white/5 group-hover:border-[#F53003]/20 transition-all">{{ $item->quantity }} PCS</span>
+                        <td class="px-10 py-6 text-center">
+                            <span class="text-[10px] font-black px-4 py-2 bg-white/[0.02] border border-white/5 rounded-xl text-gray-400">
+                                {{ $item->quantity }} UNITS
+                            </span>
                         </td>
-                        <td class="px-8 py-6">
+                        <td class="px-10 py-6 text-center">
                             <div class="flex flex-col">
-                                <span class="text-sm font-black text-white italic">₱{{ number_format($item->price, 2) }}</span>
-                                <span class="text-[10px] text-gray-600 line-through font-bold tracking-widest mt-0.5">₱{{ number_format($item->original_price, 2) }}</span>
+                                <span class="text-white font-black italic tracking-tighter">₱{{ number_format($item->price, 2) }}</span>
+                                <span class="text-[9px] text-gray-600 line-through font-bold tracking-widest">₱{{ number_format($item->original_price, 2) }}</span>
                             </div>
                         </td>
-                        <td class="px-8 py-6 text-right">
-                            <form action="{{ route('admin.sales.toggle', $item->id) }}" method="POST" class="inline">
+                        <td class="px-10 py-6 text-right">
+                            <form action="{{ route('admin.sales.toggle', $item->id) }}" method="POST">
                                 @csrf @method('PATCH')
-                                <button class="text-[10px] font-black uppercase tracking-[0.2em] bg-white/5 hover:bg-red-500/10 hover:text-red-600 px-6 py-3 rounded-xl border border-white/5 transition-all">
-                                    Pull from Vault
+                                <button class="text-[9px] font-black uppercase tracking-widest bg-white/5 hover:bg-red-500/10 hover:text-red-500 px-6 py-3 rounded-xl border border-white/5 transition-all">
+                                    Pull Asset
                                 </button>
                             </form>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="py-40 text-center">
-                            <p class="text-gray-600 font-black uppercase tracking-[0.5em] text-xs">No Items in the Sale Vault</p>
+                        <td colspan="4" class="py-32 text-center">
+                            <p class="text-gray-600 font-black uppercase tracking-[0.5em] text-[10px]">Vault Manifest Empty</p>
                         </td>
                     </tr>
                     @endforelse
@@ -93,8 +103,11 @@
             </table>
         </div>
 
+        {{-- Pagination --}}
+        @if($salesItems->hasPages())
         <div class="mt-12 flex justify-center">
             {{ $salesItems->links() }}
         </div>
+        @endif
     </div>
 </x-admin-layout>

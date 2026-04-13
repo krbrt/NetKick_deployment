@@ -125,8 +125,12 @@ $revenue = \App\Models\OrderItem::whereHas('order', function($q) { $q->whereNotI
     public function sales()
     {
         $salesItems = Product::where('is_on_sale', true)->latest()->paginate(10);
+        $grossInventoryValue = $salesItems->sum(function ($item) {
+            $grossPrice = $item->original_price > 0 ? $item->original_price : $item->price;
+            return $grossPrice * $item->quantity;
+        });
         $otherProducts = Product::where('is_on_sale', false)->get();
-        return view('admin.sales.index', compact('salesItems', 'otherProducts'));
+        return view('admin.sales.index', compact('salesItems', 'otherProducts', 'grossInventoryValue'));
     }
 
     public function quickAdd(Request $request)
@@ -356,14 +360,17 @@ $products = $query->latest()->paginate(10);
     public function reports()
     {
         // Consistent with dashboard: accurate revenue from delivered order items
-        $totalRevenue = \App\Models\OrderItem::whereHas('order', function($q) {
-            $q->where('status', 'delivered');
-        })->sum(DB::raw('quantity * price')) ?? 0;
+// Gross revenue: use original_price if on sale, else price
+
+$totalRevenue = \App\Models\OrderItem::whereHas('order', function($q) {
+            $q->whereNotIn('status', ['cancelled']);
+        })->sum(DB::raw('quantity * price'));
+
         
-        $totalOrders = Order::where('status', 'delivered')->count();
+$totalOrders = Order::count();
         $avgOrder = $totalOrders > 0 ? ($totalRevenue / $totalOrders) : 0;
 
-        $sales = Order::latest()->paginate(10);
+$sales = Order::withCount('items')->latest()->paginate(10);
         $generatedReports = Report::latest()->get();
 
         return view('admin.reports', compact('totalRevenue', 'totalOrders', 'avgOrder', 'sales', 'generatedReports'));
