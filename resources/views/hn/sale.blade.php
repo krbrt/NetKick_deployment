@@ -162,15 +162,16 @@
 @auth
     <div class="flex flex-col sm:flex-row gap-2">
         <button @click="openModal = true; quantity = 1; selectedProduct = { id: {{ $product->id }}, name: @js($product->name), price: {{ $product->price }}, sizes: @js($product->sizes), brand: @js($product->brand), stock: {{ $product->quantity }}, image: @js(asset($product->image)) }"
-                class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
+                class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
             Add to Cart
         </button>
         <button @click="openModal = true; quantity = 1; selectedProduct = { id: {{ $product->id }}, name: @js($product->name), price: {{ $product->price }}, sizes: @js($product->sizes), brand: @js($product->brand), stock: {{ $product->quantity }}, image: @js(asset($product->image)) }"
-                class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
+                class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
             Buy Now
         </button>
     </div>
 @else
+      
                             <a href="{{ route('login') }}" class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
                                 Sign in to Shop
                             </a>

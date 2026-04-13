@@ -1,5 +1,5 @@
 <x-app-layout>
-    {{-- Success Toast Notification --}}
+{{-- Success Toast Notification --}}
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
              class="fixed top-10 right-10 z-[100] bg-black text-white px-6 py-4 flex items-center gap-4 border-l-4 border-[#F53003] shadow-2xl">
@@ -20,9 +20,9 @@
 
             <ul class="space-y-4 mb-10 text-[13px] font-bold uppercase tracking-tight text-gray-800">
                 <li><a href="{{ route('hn.clothes') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Clothes<span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
-                <li><a href="{{ route('hn.shoes') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Shoes <span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
-                <li><a href="{{ route('hn.crocs') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Crocs <span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
-                <li><a href="{{ route('hn.sale') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Sales <span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
+                <li><a href="{{ route('hn.shoes') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Shoes<span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
+                <li><a href="{{ route('hn.crocs') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Crocs<span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
+                <li><a href="{{ route('hn.sale') }}" class="hover:text-[#F53003] transition-colors flex justify-between group">Sales<span class="text-gray-200 group-hover:text-[#F53003] transition-transform group-hover:translate-x-1">→</span></a></li>
             </ul>
 
             <hr class="border-gray-100 my-10">
@@ -40,7 +40,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="activeFilter === '{{ $key }}'" x-collapse class="space-y-2 pb-6 pt-4">
+                    <div x-show="activeFilter === '{{ $key }}'" class="space-y-2 pb-6 pt-4">
                         @foreach($data['options'] as $option)
                         <label class="flex items-center gap-3 cursor-pointer group">
                             <input type="checkbox" name="{{ $key }}[]" value="{{ $option }}"
@@ -63,7 +63,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="activeFilter === 'size'" x-collapse class="grid grid-cols-4 gap-2 pt-4 pb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                    <div x-show="activeFilter === 'size'" class="grid grid-cols-4 gap-2 pt-4 pb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                         @php $allSizes = array_merge(['S', 'M', 'L', 'XL'], range(36, 60)); @endphp
                         @foreach($allSizes as $size)
                         <label class="relative cursor-pointer">
@@ -101,9 +101,7 @@
                 <div class="flex flex-col group">
                     {{-- Image Container --}}
                     <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
-                        @if($product->image)
-                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
-                        @endif
+                        <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
                         @if($product->quality)
                         <div class="absolute top-0 left-0 bg-[#F53003] text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
                             {{ $product->quality }}
@@ -118,9 +116,7 @@
                         <p class="text-xs font-bold text-gray-400 italic mb-3">₱{{ number_format($product->price, 2) }}</p>
 
                         <div class="flex flex-wrap justify-center gap-1.5 px-2">
-                            @php
-                                $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
-                            @endphp
+                            @php $productSizes = $product->sizes ? explode(',', $product->sizes) : []; @endphp
                             @foreach($productSizes as $size)
                                 <span class="text-[9px] font-black uppercase border border-gray-100 px-2 py-0.5 text-gray-400 group-hover:border-black group-hover:text-black transition-all">
                                     {{ trim($size) }}
@@ -129,25 +125,28 @@
                         </div>
                     </div>
 
+                    {{-- Actions --}}
                     <div class="mt-auto">
-@auth
-    <div class="flex flex-col sm:flex-row gap-2">
-        <button @click="openModal = true; quantity = 1; selectedProduct = { id: {{ $product->id }}, name: @js($product->name), price: {{ $product->price }}, sizes: @js($product->sizes), brand: @js($product->brand), stock: {{ $product->quantity }}, image: @js(asset($product->image)) }"
-                class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
-            Add to Cart
-        </button>
-        <button @click="openModal = true; quantity = 1; selectedProduct = { id: {{ $product->id }}, name: @js($product->name), price: {{ $product->price }}, sizes: @js($product->sizes), brand: @js($product->brand), stock: {{ $product->quantity }}, image: @js(asset($product->image)) }"
-                class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
-            Buy Now
-        </button>
-    </div>
-@else
+                        @auth
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                {{-- ✅ Use pre-computed $imageUrl instead of asset($product->image) --}}
+                                <button @click="openModal = true; quantity = 1; selectedProduct = { id: {{ $product->id }}, name: @js($product->name), price: {{ $product->price }}, sizes: @js($product->sizes ?? ''), brand: @js($product->brand), stock: {{ $product->quantity }}, image: '{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}' }"
+                                        class="flex-1 bg-white text-black text-[9px] font-black uppercase tracking-widest py-4 border border-black hover:bg-black hover:text-white transition-all">
+                                    Add to Cart
+                                </button>
+                                <button @click="openModal = true; quantity = 1; selectedProduct = { id: {{ $product->id }}, name: @js($product->name), price: {{ $product->price }}, sizes: @js($product->sizes ?? ''), brand: @js($product->brand), stock: {{ $product->quantity }}, image: '{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}' }"
+                                        class="flex-1 bg-[#F53003] text-white text-[9px] font-black uppercase tracking-widest py-4 border border-[#F53003] hover:bg-black hover:border-black transition-all">
+                                    Buy Now
+                                </button>
+                            </div>
+                        @else
                             <a href="{{ route('login') }}" class="block text-center border-2 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] py-4 hover:bg-black hover:text-white transition-all">
                                 Sign in to Shop
                             </a>
                         @endauth
                     </div>
                 </div>
+
                 @empty
                     <div class="col-span-full py-20 text-center">
                         <p class="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px]">No items found.</p>
@@ -162,11 +161,17 @@
             </div>
 
             {{-- Modal --}}
-            <div x-show="openModal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" x-cloak x-transition>
-                <div @click.away="openModal = false" class="bg-white w-full max-w-md p-10 border-t-8 border-[#F53003] shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div x-show="openModal"
+                 x-cloak
+                 x-transition
+                 class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+                <div @click.away="openModal = false"
+                     class="bg-white w-full max-w-md p-10 border-t-8 border-[#F53003] shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+
                     <div class="relative w-full aspect-square bg-[#f6f6f6] mb-8 overflow-hidden flex items-center justify-center border border-gray-50">
                         <template x-if="selectedProduct.image">
-                            <img :src="selectedProduct.image" :alt="selectedProduct.name" class="w-full h-full object-contain p-6 mix-blend-multiply">
+                            <img :src="selectedProduct.image" :alt="selectedProduct.name"
+                                 class="w-full h-full object-contain p-6 mix-blend-multiply">
                         </template>
                     </div>
 
@@ -180,10 +185,11 @@
                         @csrf
                         <input type="hidden" name="product_id" :value="selectedProduct.id">
 
+                        {{-- Size --}}
                         <div>
                             <label class="text-[10px] font-black uppercase tracking-widest text-black block mb-4">Select Size</label>
                             <div class="grid grid-cols-4 gap-2">
-                                <template x-for="size in selectedProduct.sizes ? selectedProduct.sizes.split(',') : []">
+                                <template x-for="size in (selectedProduct.sizes ? selectedProduct.sizes.split(',') : [])">
                                     <label class="cursor-pointer">
                                         <input type="radio" name="size" :value="size.trim()" class="peer hidden" required>
                                         <div class="border-2 border-gray-100 py-3 text-center text-[11px] font-black uppercase peer-checked:bg-black peer-checked:text-white hover:border-black transition-all">
@@ -194,6 +200,7 @@
                             </div>
                         </div>
 
+                        {{-- Quantity --}}
                         <div>
                             <div class="flex justify-between items-center mb-4">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-black">Quantity</label>
@@ -207,10 +214,13 @@
                         </div>
 
                         <div class="flex flex-col gap-3">
-                            <button type="submit" :disabled="selectedProduct.stock <= 0" class="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 border border-black hover:bg-[#F53003] hover:border-[#F53003] disabled:opacity-50 transition-colors">
+                            <button type="submit"
+                                    :disabled="selectedProduct.stock <= 0"
+                                    class="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 border border-black hover:bg-[#F53003] hover:border-[#F53003] disabled:opacity-50 transition-colors">
                                 Confirm & Add to Cart
                             </button>
-                            <button type="button" @click="openModal = false" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black py-2 transition-colors">
+                            <button type="button" @click="openModal = false"
+                                    class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black py-2 transition-colors">
                                 Close
                             </button>
                         </div>
@@ -220,6 +230,7 @@
         </main>
     </div>
 
+    {{-- Footer --}}
     <footer class="bg-black text-white pt-24 pb-12 px-6">
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
             <div class="flex flex-col items-center md:items-start">
@@ -276,4 +287,5 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #000; }
     </style>
+
 </x-app-layout>
