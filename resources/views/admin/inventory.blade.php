@@ -82,10 +82,13 @@
                             {{-- Sizes --}}
                             <td class="py-8 px-4 text-center">
                                 @php
-                                    $availableSizes = $product->available_sizes;
+                                    $sizeStockMap = $product->size_stock_map;
+                                    $sizeStockText = collect($sizeStockMap)->map(function ($qty, $size) {
+                                        return $qty === null ? $size : ($size . '(' . $qty . ')');
+                                    })->implode(', ');
                                 @endphp
                                 <span class="text-[10px] font-black italic text-white bg-white/5 px-2 py-1 rounded">
-                                    {{ count($availableSizes) > 0 ? implode(', ', $availableSizes) : 'N/A' }}
+                                    {{ $sizeStockText !== '' ? $sizeStockText : 'N/A' }}
                                 </span>
                             </td>
 

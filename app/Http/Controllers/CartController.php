@@ -19,9 +19,8 @@ class CartController extends Controller
         }
 
         $availableSizes = $this->getAvailableSizes($product);
-        // Fallback for legacy/no-size products so Add to Cart still works.
         if (empty($availableSizes)) {
-            $size = 'Standard';
+            return 'Size is not available for this product.';
         } elseif (!in_array($size, $availableSizes, true)) {
             // Production-safe fallback: normalize invalid/missing submitted size.
             $size = $availableSizes[0];
@@ -129,6 +128,13 @@ class CartController extends Controller
                     // Check if the manual input/increase exceeds stock
                     if ($product && $request->quantity > $product->quantity) {
                         return redirect()->back()->with('error', 'Only ' . $product->quantity . ' units available.');
+                    }
+                    if ($product) {
+                        $size = $cart[$request->id]['size'] ?? null;
+                        $sizeStock = $size ? ($product->size_stock_map[$size] ?? null) : null;
+                        if ($sizeStock !== null && $request->quantity > $sizeStock) {
+                            return redirect()->back()->with('error', 'Only ' . $sizeStock . ' unit(s) available for size ' . $size . '.');
+                        }
                     }
                     $cart[$request->id]["quantity"] = $request->quantity;
                 }

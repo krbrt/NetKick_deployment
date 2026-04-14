@@ -62,7 +62,7 @@
             {{-- Added x-data to manage the state for each product card --}}
             @php
                 $sizes = $product->available_sizes;
-                $defaultSize = count($sizes) > 0 ? $sizes[0] : 'Standard';
+                $defaultSize = count($sizes) > 0 ? $sizes[0] : '';
             @endphp
             <div class="flex flex-col group">
                 {{-- Image Container --}}
