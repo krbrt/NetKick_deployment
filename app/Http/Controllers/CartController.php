@@ -77,8 +77,8 @@ class CartController extends Controller
         $product = Product::findOrFail($request->product_id);
         $quantityToAdd = max(1, (int) $request->input('quantity', 1));
         $size = trim((string) $request->input('size', ''));
-        if ($size === '') {
-            $availableSizes = $this->getAvailableSizes($product);
+        $availableSizes = $this->getAvailableSizes($product);
+        if ($size === '' || (!empty($availableSizes) && !in_array($size, $availableSizes, true))) {
             $size = $availableSizes[0] ?? '';
         }
         $errorMessage = $this->addItemToSessionCart($product, $quantityToAdd, $size);
@@ -95,8 +95,8 @@ class CartController extends Controller
         $product = Product::findOrFail($request->product_id);
         $quantityToAdd = max(1, (int) $request->input('quantity', 1));
         $size = trim((string) $request->input('size', ''));
-        if ($size === '') {
-            $availableSizes = $this->getAvailableSizes($product);
+        $availableSizes = $this->getAvailableSizes($product);
+        if ($size === '' || (!empty($availableSizes) && !in_array($size, $availableSizes, true))) {
             $size = $availableSizes[0] ?? '';
         }
 

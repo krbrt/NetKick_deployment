@@ -44,7 +44,7 @@ Route::name('hn.')->controller(ProductDisplayController::class)->group(function 
 | Authenticated User Routes (Customers)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     // CART SYSTEM - Inayos ang routes para sa Database-driven Cart
