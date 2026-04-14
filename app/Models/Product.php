@@ -90,16 +90,27 @@ class Product extends Model
     public function getSizeStockMapAttribute(): array
     {
         $map = [];
-        $tokens = array_filter(array_map('trim', explode(',', (string) $this->sizes)));
+        $raw = (string) $this->sizes;
+
+        // Prefer explicit size=qty pairs and support mixed separators/spaces.
+        preg_match_all('/([^\s,;=]+)\s*=\s*(\d+)/', $raw, $matches, PREG_SET_ORDER);
+        if (!empty($matches)) {
+            foreach ($matches as $match) {
+                $size = trim($match[1]);
+                $qty = (int) $match[2];
+                if ($size !== '') {
+                    $map[$size] = max(0, $qty);
+                }
+            }
+            return $map;
+        }
+
+        // Legacy fallback: "42,43,44" / "42;43;44" / newlines
+        $tokens = preg_split('/[\r\n,;]+/', $raw) ?: [];
+        $tokens = array_filter(array_map('trim', $tokens));
 
         foreach ($tokens as $token) {
-            if (str_contains($token, '=')) {
-                [$size, $qty] = array_map('trim', explode('=', $token, 2));
-                if ($size !== '') {
-                    $map[$size] = max(0, (int) $qty);
-                }
-            } else {
-                // Legacy format support: "42,43,44"
+            if ($token !== '') {
                 $map[$token] = null;
             }
         }

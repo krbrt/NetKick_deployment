@@ -16,17 +16,21 @@ class ProductController extends Controller
 
     private function normalizeSizes(string $sizes): string
     {
-        return collect(explode(',', $sizes))
+        $raw = trim($sizes);
+        if ($raw === '') {
+            return '';
+        }
+
+        preg_match_all('/([^\s,;=]+)\s*=\s*(\d+)/', $raw, $matches, PREG_SET_ORDER);
+        if (!empty($matches)) {
+            return collect($matches)
+                ->map(fn ($m) => trim($m[1]) . '=' . max(0, (int) $m[2]))
+                ->implode(', ');
+        }
+
+        return collect(preg_split('/[\r\n,;]+/', $raw) ?: [])
             ->map(fn ($token) => trim($token))
             ->filter()
-            ->map(function ($token) {
-                if (!str_contains($token, '=')) {
-                    return $token;
-                }
-
-                [$size, $qty] = array_map('trim', explode('=', $token, 2));
-                return $size . '=' . max(0, (int) $qty);
-            })
             ->implode(', ');
     }
 
