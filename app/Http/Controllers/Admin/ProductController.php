@@ -32,7 +32,7 @@ class ProductController extends Controller
             'gender'   => 'required|string',
             'price'    => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
-            'sizes'    => 'required|string',
+            'sizes'    => 'nullable|string',
             'quality'  => 'required|string',
             'image'    => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
@@ -55,7 +55,7 @@ class ProductController extends Controller
             'gender'     => $request->gender,
             'price'      => $request->price,
             'quantity'   => $request->quantity,
-            'sizes'      => $request->sizes,
+            'sizes'      => $request->filled('sizes') ? $request->sizes : null,
             'image'      => $imagePath,
 'quality'    => $request->quality ?? null,
             'is_on_sale' => false,
@@ -84,7 +84,7 @@ class ProductController extends Controller
             'gender'   => 'required|string',
             'price'    => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
-            'sizes'    => 'required|string',
+            'sizes'    => 'nullable|string',
             'quality'  => 'required|string',
             'image'    => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
@@ -110,7 +110,7 @@ class ProductController extends Controller
             'gender'   => $request->gender,
             'price'    => $request->price,
             'quantity' => $request->quantity,
-            'sizes'    => $request->sizes,
+            'sizes'    => $request->filled('sizes') ? $request->sizes : null,
             'image'    => $product->image,
 'quality'  => $request->quality ?? null,
         ]);

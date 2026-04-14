@@ -66,7 +66,7 @@
                     ->filter()
                     ->values()
                     ->all();
-                $defaultSize = count($sizes) > 0 ? $sizes[0] : 'Standard';
+                $defaultSize = count($sizes) > 0 ? $sizes[0] : '';
             @endphp
             <div class="flex flex-col group">
                 {{-- Image Container --}}
@@ -103,12 +103,7 @@
                                 {{ $size }}
                             </button>
                         @empty
-                            <button type="button"
-                                    data-size-button
-                                    onclick="setDashboardProductSize({{ $product->id }}, 'Standard', this)"
-                                    class="text-[8px] font-black uppercase border border-black px-3 py-1 text-white bg-black transition-all outline-none">
-                                Standard
-                            </button>
+                            <span class="text-[8px] font-black uppercase border border-gray-200 px-3 py-1 text-gray-400">Not Available</span>
                         @endforelse
                     </div>
                 </div>
@@ -120,7 +115,8 @@
                         <input type="hidden" id="dashboard-selected-size-{{ $product->id }}" name="size" value="{{ $defaultSize }}">
 
 <button type="submit"
-        class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
+        {{ empty($defaultSize) ? 'disabled' : '' }}
+        class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors {{ empty($defaultSize) ? 'opacity-50 cursor-not-allowed hover:bg-black' : '' }}">
     Add To Cart
 </button>
                     </form>

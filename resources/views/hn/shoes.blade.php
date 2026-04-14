@@ -103,7 +103,7 @@
                         ->filter()
                         ->values()
                         ->all();
-                    $defaultSize = count($productSizes) > 0 ? $productSizes[0] : 'Standard';
+                    $defaultSize = count($productSizes) > 0 ? $productSizes[0] : '';
                 @endphp
 
                 <div class="flex flex-col group h-full">
@@ -135,12 +135,9 @@
                                     {{ $size }}
                                 </button>
                             @empty
-                                <button type="button"
-                                        data-size-button
-                                        onclick="setProductSize({{ $product->id }}, 'Standard', this)"
-                                        class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none bg-black text-white border-black">
-                                    Standard
-                                </button>
+                                <span class="text-[9px] font-black uppercase border px-3 py-1 border-gray-200 text-gray-400">
+                                    Not Available
+                                </span>
                             @endforelse
                         </div>
                     </div>
@@ -158,12 +155,14 @@
 
 <div class="flex flex-col sm:flex-row gap-2">
     <button type="submit"
-        class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
+        {{ empty($defaultSize) ? 'disabled' : '' }}
+        class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors {{ empty($defaultSize) ? 'opacity-50 cursor-not-allowed hover:bg-black' : '' }}">
         Add to Cart
     </button>
     
     <button type="submit" formaction="{{ route('cart.buyNow') }}"
-         class="w-full block text-center bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
+         {{ empty($defaultSize) ? 'disabled' : '' }}
+         class="w-full block text-center bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors {{ empty($defaultSize) ? 'opacity-50 cursor-not-allowed hover:bg-black' : '' }}">
         Buy Now
     </button>
 </div>

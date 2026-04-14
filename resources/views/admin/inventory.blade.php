@@ -82,7 +82,7 @@
                             {{-- Sizes --}}
                             <td class="py-8 px-4 text-center">
                                 <span class="text-[10px] font-black italic text-white bg-white/5 px-2 py-1 rounded">
-                                    {{ $product->sizes ?? 'OS' }}
+                                    {{ filled($product->sizes) ? $product->sizes : 'N/A' }}
                                 </span>
                             </td>
 

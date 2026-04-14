@@ -7,10 +7,27 @@ use App\Models\Product;
 
 class CartController extends Controller
 {
+    private function getAvailableSizes(Product $product): array
+    {
+        return collect(explode(',', (string) $product->sizes))
+            ->map(fn ($size) => trim($size))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
     private function addItemToSessionCart(Product $product, int $quantityToAdd, string $size): ?string
     {
         if ($product->quantity < $quantityToAdd) {
             return 'Only ' . $product->quantity . ' units left in the vault!';
+        }
+
+        $availableSizes = $this->getAvailableSizes($product);
+        if (empty($availableSizes)) {
+            return 'Size is not available for this product.';
+        }
+        if (!in_array($size, $availableSizes, true)) {
+            return 'Selected size is not available.';
         }
 
         $cart = session()->get('cart', []);
@@ -54,7 +71,7 @@ class CartController extends Controller
     {
         $product = Product::findOrFail($request->product_id);
         $quantityToAdd = (int) $request->input('quantity', 1);
-        $size = (string) $request->input('size', 'Standard');
+        $size = (string) $request->input('size', '');
         $errorMessage = $this->addItemToSessionCart($product, $quantityToAdd, $size);
         if ($errorMessage) {
             return redirect()->back()->with('error', $errorMessage);
@@ -68,7 +85,7 @@ class CartController extends Controller
     {
         $product = Product::findOrFail($request->product_id);
         $quantityToAdd = (int) $request->input('quantity', 1);
-        $size = (string) $request->input('size', 'Standard');
+        $size = (string) $request->input('size', '');
 
         $errorMessage = $this->addItemToSessionCart($product, $quantityToAdd, $size);
         if ($errorMessage) {

@@ -115,8 +115,9 @@
                 </div>
                 <div class="space-y-2">
                     <label class="text-[11px] font-bold uppercase text-gray-500 tracking-wider">Available Sizes</label>
-                    <input type="text" name="sizes" placeholder="7, 8, 9, 10 / S, M, L" required
+                    <input type="text" name="sizes" placeholder="7, 8, 9, 10 / S, M, L"
                         class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#F53003]">
+                    <p class="text-[9px] text-gray-600 mt-2 font-bold uppercase tracking-widest">Leave blank if size is not available</p>
                 </div>
             </div>
 

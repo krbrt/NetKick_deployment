@@ -78,7 +78,7 @@
                     <label class="text-[9px] font-black uppercase tracking-[0.3em] text-gray-500 mb-4 block">Size Manifest</label>
                     <input type="text" name="sizes" value="{{ old('sizes', $product->sizes) }}" 
                         class="w-full bg-transparent border-none p-0 text-white text-2xl font-black italic tracking-tighter focus:ring-0 outline-none" placeholder="8, 9, 10...">
-                    <p class="text-[9px] text-gray-600 mt-2 font-black uppercase tracking-widest">Global Sizing</p>
+                    <p class="text-[9px] text-gray-600 mt-2 font-black uppercase tracking-widest">Leave blank if size is not available</p>
                 </div>
 
             </div>

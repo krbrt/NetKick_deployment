@@ -66,9 +66,9 @@
                     ->filter()
                     ->values()
                     ->all();
-                $defaultSize = count($sizes) > 0 ? $sizes[0] : 'Standard';
+                $defaultSize = count($sizes) > 0 ? $sizes[0] : '';
             @endphp
-            <div class="flex flex-col group" x-data="{ selectedSize: '{{ $defaultSize }}' }">
+            <div class="flex flex-col group">
                 {{-- Image Container --}}
                 <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
                     <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
@@ -97,15 +97,13 @@
                     <div class="flex flex-wrap justify-center gap-1.5 px-2">
                         @forelse($sizes as $size)
                             <button type="button"
-                                    @click="selectedSize = '{{ $size }}'"
-                                    :class="selectedSize === '{{ $size }}' ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
-                                    class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none">
+                                    data-size-button
+                                    onclick="setLandingProductSize({{ $product->id }}, @js($size), this)"
+                                    class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none {{ $loop->first ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black' }}">
                                 {{ $size }}
                             </button>
                         @empty
-                            <span class="text-[8px] font-black uppercase border border-gray-200 px-3 py-1 text-gray-400">
-                                Standard
-                            </span>
+                            <span class="text-[8px] font-black uppercase border border-gray-200 px-3 py-1 text-gray-400">Not Available</span>
                         @endforelse
                     </div>
                 </div>
@@ -114,11 +112,11 @@
                     <form action="{{ route('cart.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        {{-- Added hidden input to bind the Alpine.js selectedSize to the form submission --}}
-                        <input type="hidden" name="size" :value="selectedSize">
+                        <input type="hidden" id="landing-selected-size-{{ $product->id }}" name="size" value="{{ $defaultSize }}">
 
 <button type="submit"
-        class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
+        {{ empty($defaultSize) ? 'disabled' : '' }}
+        class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors {{ empty($defaultSize) ? 'opacity-50 cursor-not-allowed hover:bg-black' : '' }}">
     Add To Cart
 </button>
                     </form>
@@ -187,6 +185,24 @@
             <p class="text-[9px] text-gray-600 uppercase font-black tracking-widest">© 2026 NETKICKS GLOBAL. All Rights Reserved.</p>
         </div>
     </footer>
+
+    <script>
+        function setLandingProductSize(productId, size, buttonEl) {
+            const input = document.getElementById(`landing-selected-size-${productId}`);
+            if (input) input.value = size;
+
+            const container = buttonEl.parentElement;
+            if (!container) return;
+
+            container.querySelectorAll('[data-size-button]').forEach((btn) => {
+                btn.classList.remove('bg-black', 'text-white', 'border-black');
+                btn.classList.add('border-gray-200', 'text-gray-400', 'hover:border-black', 'hover:text-black');
+            });
+
+            buttonEl.classList.remove('border-gray-200', 'text-gray-400', 'hover:border-black', 'hover:text-black');
+            buttonEl.classList.add('bg-black', 'text-white', 'border-black');
+        }
+    </script>
 
 </body>
 </html>
