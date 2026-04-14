@@ -104,6 +104,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/orders', 'orders')->name('orders.index');
         Route::get('/orders/{id}', 'orderDetails')->name('orders.show');
         Route::patch('/orders/{id}/status', 'updateOrderStatus')->name('orders.updateStatus');
+        Route::delete('/orders/{id}', 'destroyOrder')->name('orders.destroy');
     });
 
     // Product CRUD - Full Management

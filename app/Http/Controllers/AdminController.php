@@ -119,6 +119,27 @@ $revenue = \App\Models\OrderItem::whereHas('order', function($q) { $q->whereNotI
         return redirect()->back()->with('success', "Order #{$order->order_number} status updated to " . strtoupper($newStatus));
     }
 
+    public function destroyOrder($id)
+    {
+        $order = Order::with('items')->findOrFail($id);
+
+        DB::transaction(function () use ($order) {
+            // If order was not cancelled, return stock before deleting record.
+            if ($order->status !== 'cancelled') {
+                foreach ($order->items as $item) {
+                    $product = Product::find($item->product_id);
+                    if ($product) {
+                        $product->increment('quantity', $item->quantity);
+                    }
+                }
+            }
+
+            $order->delete();
+        });
+
+        return redirect()->back()->with('success', 'Transaction deleted successfully.');
+    }
+
     /**
      * SALES & INVENTORY (Preserved)
      */

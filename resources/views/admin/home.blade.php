@@ -69,6 +69,7 @@
                                     <th class="pb-6 px-4">Payment</th>
                                     <th class="pb-6 px-4">Value</th>
                                     <th class="pb-6 px-4 text-center">Status</th>
+                                    <th class="pb-6 px-4 text-center">Actions</th>
                                     <th class="pb-6 px-4 text-right">Timestamp</th>
                                 </tr>
                             </thead>
@@ -127,6 +128,22 @@
                                                     : 'border-white/10 text-gray-500 bg-white/5' }}">
                                                 {{ strtoupper($tx->status) }}
                                             </span>
+                                        </td>
+                                        <td class="py-6 px-4 text-center">
+                                            <div class="flex items-center justify-center gap-2" onclick="event.stopPropagation()">
+                                                <a href="{{ route('admin.orders.show', $tx->id) }}"
+                                                   class="px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest border border-white/10 text-white bg-white/5 hover:bg-white/10 transition-all">
+                                                    Edit
+                                                </a>
+                                                <form action="{{ route('admin.orders.destroy', $tx->id) }}" method="POST" onsubmit="return confirm('Delete this transaction? This action cannot be undone.');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest border border-[#F53003]/40 text-[#F53003] bg-[#F53003]/5 hover:bg-[#F53003] hover:text-white transition-all">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                         <td class="py-6 px-4 text-right text-gray-600 font-black text-[9px] italic">{{ $tx->created_at->format('M d • H:i') }}</td>
                                     </tr>
