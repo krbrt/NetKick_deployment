@@ -91,26 +91,29 @@ class Product extends Model
     {
         $map = [];
         $raw = (string) $this->sizes;
+        $normalized = str_replace(["\r\n", "\n", ";"], ",", $raw);
 
-        // Prefer explicit size=qty pairs and support mixed separators/spaces.
-        preg_match_all('/([^\s,;=]+)\s*=\s*(\d+)/', $raw, $matches, PREG_SET_ORDER);
-        if (!empty($matches)) {
-            foreach ($matches as $match) {
-                $size = trim($match[1]);
-                $qty = (int) $match[2];
-                if ($size !== '') {
-                    $map[$size] = max(0, $qty);
-                }
-            }
-            return $map;
-        }
+        // Support compact pairs separated by spaces: "42=1 43=2"
+        $normalized = preg_replace('/\s+(?=[^,\s=]+=)/', ',', $normalized) ?? $normalized;
 
-        // Legacy fallback: "42,43,44" / "42;43;44" / newlines
-        $tokens = preg_split('/[\r\n,;]+/', $raw) ?: [];
+        $tokens = preg_split('/\s*,\s*/', $normalized) ?: [];
         $tokens = array_filter(array_map('trim', $tokens));
 
         foreach ($tokens as $token) {
-            if ($token !== '') {
+            if (str_contains($token, '=')) {
+                [$size, $qty] = array_map('trim', explode('=', $token, 2));
+                if ($size === '') {
+                    continue;
+                }
+
+                // If qty is not numeric, keep it as legacy-available size.
+                if (!is_numeric($qty)) {
+                    $map[$size] = null;
+                    continue;
+                }
+
+                $map[$size] = max(0, (int) $qty);
+            } elseif ($token !== '') {
                 $map[$token] = null;
             }
         }
