@@ -97,7 +97,7 @@
         @php
             $imageUrl = $product->image_url;
             $productSizes = $product->available_sizes;
-            $defaultSize = count($productSizes) > 0 ? $productSizes[0] : '';
+            $defaultSize = count($productSizes) > 0 ? $productSizes[0] : 'Standard';
         @endphp
 
         {{-- Added 'relative' here so absolute badges stay inside the card --}}

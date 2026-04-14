@@ -103,7 +103,7 @@
                 @php
                     $imageUrl = $product->image_url;
                     $productSizes = $product->available_sizes;
-                    $defaultSize = count($productSizes) > 0 ? $productSizes[0] : '';
+                    $defaultSize = count($productSizes) > 0 ? $productSizes[0] : 'Standard';
                 @endphp
 
                 <div class="flex flex-col group h-full">

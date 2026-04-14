@@ -19,10 +19,10 @@ class CartController extends Controller
         }
 
         $availableSizes = $this->getAvailableSizes($product);
+        // Fallback for legacy/no-size products so Add to Cart still works.
         if (empty($availableSizes)) {
-            return 'Size is not available for this product.';
-        }
-        if (!in_array($size, $availableSizes, true)) {
+            $size = 'Standard';
+        } elseif (!in_array($size, $availableSizes, true)) {
             return 'Selected size is not available.';
         }
 
