@@ -14,7 +14,7 @@ class MediaController extends Controller
             abort(404);
         }
 
-        return response()->file(Storage::disk('public')->path($cleanPath));
+        return Storage::disk('public')->response($cleanPath);
     }
 }
 

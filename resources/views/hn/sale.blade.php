@@ -118,7 +118,7 @@
         @endphp
 
         {{-- Added 'relative' here so absolute badges stay inside the card --}}
-        <div x-data="{ selectedSize: '{{ $defaultSize }}' }" class="relative flex flex-col group h-full">
+        <div x-data="{ selectedSize: @js($defaultSize) }" class="relative flex flex-col group h-full">
 
             {{-- Image Container --}}
             <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
@@ -161,8 +161,8 @@
                 <div class="flex flex-wrap justify-center gap-1.5 px-2">
                     @forelse($productSizes as $size)
                         <button type="button" 
-                                @click="selectedSize = '{{ $size }}'"
-                                :class="selectedSize === '{{ $size }}' ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
+                                @click="selectedSize = @js($size)"
+                                :class="selectedSize === @js($size) ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
                                 class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none">
                             {{ $size }}
                         </button>

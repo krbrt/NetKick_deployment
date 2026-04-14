@@ -50,15 +50,28 @@ class Product extends Model
             return asset('images/no-image.png');
         }
 
-        if (Str::startsWith($this->image, ['http://', 'https://'])) {
-            return $this->image;
+        $raw = trim(str_replace('\\', '/', (string) $this->image));
+        $path = $raw;
+
+        // If DB contains absolute URL from old domain, reuse only /storage/... path.
+        if (Str::startsWith($raw, ['http://', 'https://'])) {
+            $parsedPath = (string) parse_url($raw, PHP_URL_PATH);
+            if (Str::contains($parsedPath, '/storage/')) {
+                $path = Str::after($parsedPath, '/storage/');
+            } else {
+                return $raw;
+            }
         }
 
-        $path = ltrim($this->image, '/');
+        $path = ltrim($path, '/');
         if (Str::startsWith($path, 'storage/')) {
-            return asset($path);
+            $path = Str::after($path, 'storage/');
         }
-        $publicStorageFile = public_path('storage/' . $path);
+        if (Str::startsWith($path, 'public/')) {
+            $path = Str::after($path, 'public/');
+        }
+
+        $publicStorageFile = public_path('storage/' . ltrim($path, '/'));
         if (is_file($publicStorageFile)) {
             return asset('storage/' . $path);
         }
