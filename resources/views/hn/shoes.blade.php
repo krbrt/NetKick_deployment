@@ -28,61 +28,49 @@
     <a href="?category[]=Lifestyle+Sneakers" class="hover:text-[#F53003] transition-colors flex justify-between group">Lifestyle</a>
 </nav>
 
-            {{-- Filters Section --}}
-            <div x-data="{
-                activeFilter: null,
-                applyExclusive(name, value) {
-                    const url = new URL(window.location.href);
-                    // Use standard parameter name (the controller handles the array conversion)
-                    url.searchParams.set(name + '[]', value);
-                    window.location.href = url.href;
-                }
-            }">
-                {{-- Only show filters if they are passed from the controller --}}
-                @isset($filters)
-                    @foreach($filters as $key => $data)
-                    <div class="mb-4">
-                        <button type="button" @click="activeFilter = (activeFilter === '{{ $key }}' ? null : '{{ $key }}')"
-                                class="w-full flex items-center justify-between py-4 text-[11px] font-black uppercase tracking-widest text-black border-b border-gray-100 hover:text-[#F53003]">
-                            {{ $data['label'] }}
-                            <svg class="w-4 h-4" :class="activeFilter === '{{ $key }}' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                        <div x-show="activeFilter === '{{ $key }}'" class="space-y-2 pb-6 pt-4">
-                            @foreach($data['options'] as $option)
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" name="{{ $key }}[]" value="{{ $option }}"
-                                       @click.prevent="applyExclusive('{{ $key }}', '{{ $option }}')"
-                                       class="w-4 h-4 border-2 border-gray-200 rounded-none checked:bg-black checked:border-black focus:ring-0 cursor-pointer"
-                                       {{ in_array($option, (array)request($key, [])) ? 'checked' : '' }}>
-                                <span class="text-[12px] font-bold text-gray-500 group-hover:text-black uppercase tracking-tight">
-                                    {{ $option }}
-                                </span>
-                            </label>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endforeach
-                @endisset
+           
+            <form action="{{ url()->current() }}" method="GET" x-data="{ activeFilter: null }">
+                @php $filters = $filters ?? []; @endphp
 
-                {{-- Size Filter (Hardcoded as requested) --}}
+                @foreach($filters as $key => $data)
+                <div class="mb-4">
+                    <button type="button" @click="activeFilter = (activeFilter === '{{ $key }}' ? null : '{{ $key }}')"
+                            class="w-full flex items-center justify-between py-4 text-[11px] font-black uppercase tracking-widest text-black border-b border-gray-100 hover:text-[#F53003]">
+                        {{ $data['label'] }}
+                        <svg class="w-4 h-4 transition-transform" :class="activeFilter === '{{ $key }}' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div x-show="activeFilter === '{{ $key }}'" class="space-y-2 pb-6 pt-4">
+                        @foreach($data['options'] as $option)
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" name="{{ $key }}[]" value="{{ $option }}"
+                                   class="w-4 h-4 border-2 border-gray-200 rounded-none checked:bg-black checked:border-black focus:ring-0 cursor-pointer"
+                                   {{ in_array($option, (array)request($key, [])) ? 'checked' : '' }}>
+                            <span class="text-[12px] font-bold text-gray-500 group-hover:text-black uppercase tracking-tight">
+                                {{ $option }}
+                            </span>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+                @endforeach
+
                 <div class="mb-4">
                     <button type="button" @click="activeFilter = (activeFilter === 'size' ? null : 'size')"
                             class="w-full flex items-center justify-between py-4 text-[11px] font-black uppercase tracking-widest text-black border-b border-gray-100 hover:text-[#F53003]">
                         Size
-                        <svg class="w-4 h-4" :class="activeFilter === 'size' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 transition-transform" :class="activeFilter === 'size' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
                     <div x-show="activeFilter === 'size'" class="grid grid-cols-4 gap-2 pt-4 pb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
-                        @php $allSizes = array_merge(['S', 'M', 'L', 'XL'], range(36, 48)); @endphp
+                        @php $allSizes = array_merge(['S', 'M', 'L', 'XL'], range(36, 60)); @endphp
                         @foreach($allSizes as $size)
                         <label class="relative cursor-pointer">
                             <input type="checkbox" name="size[]" value="{{ $size }}"
-                                   @click.prevent="applyExclusive('size', '{{ $size }}')"
                                    class="peer hidden" {{ in_array((string)$size, (array)request('size', [])) ? 'checked' : '' }}>
-                            <div class="py-2 text-[10px] font-black text-center border border-gray-100 rounded-md peer-checked:bg-black peer-checked:text-white hover:border-black uppercase">
+                            <div class="py-2 text-[10px] font-black text-center border border-gray-100 rounded-md peer-checked:bg-black peer-checked:text-white hover:border-black uppercase transition-all">
                                 {{ $size }}
                             </div>
                         </label>
@@ -91,13 +79,16 @@
                 </div>
 
                 <div class="mt-8">
-                    @if(request()->anyFilled(['gender', 'category', 'brand', 'price', 'size', 'sale', 'color']))
-                        <a href="{{ url()->current() }}" class="block text-center text-[10px] font-black uppercase tracking-widest text-white bg-black py-4 hover:bg-[#F53003]">
+                    <button type="submit" class="block w-full text-center text-[10px] font-black uppercase tracking-widest text-white bg-black py-4 hover:bg-[#F53003] border-none cursor-pointer transition-colors">
+                        Apply Filters
+                    </button>
+                    @if(request()->hasAny(['gender', 'category', 'brand', 'color', 'price', 'size']))
+                        <a href="{{ url()->current() }}" class="block text-center text-[10px] font-black uppercase tracking-widest text-white bg-[#F53003] py-4 mt-2 hover:bg-black transition-colors">
                             Clear All Filters
                         </a>
                     @endif
                 </div>
-            </div>
+            </form>
         </aside>
 
         {{-- Main Content --}}
@@ -144,9 +135,12 @@
                                     {{ $size }}
                                 </button>
                             @empty
-                                <span class="text-[9px] font-black uppercase border px-3 py-1 border-gray-200 text-gray-400">
+                                <button type="button"
+                                        data-size-button
+                                        onclick="setProductSize({{ $product->id }}, 'Standard', this)"
+                                        class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none bg-black text-white border-black">
                                     Standard
-                                </span>
+                                </button>
                             @endforelse
                         </div>
                     </div>
