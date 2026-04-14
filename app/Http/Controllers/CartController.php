@@ -23,7 +23,8 @@ class CartController extends Controller
         if (empty($availableSizes)) {
             $size = 'Standard';
         } elseif (!in_array($size, $availableSizes, true)) {
-            return 'Selected size is not available.';
+            // Production-safe fallback: normalize invalid/missing submitted size.
+            $size = $availableSizes[0];
         }
 
         $sizeStockMap = $product->size_stock_map;
