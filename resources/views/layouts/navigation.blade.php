@@ -20,7 +20,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 sm:space-x-4">
                 {{-- Search Bar --}}
                 <form action="{{ route('hn.featured') }}" method="GET" class="relative hidden lg:block">
                     <input type="text" name="search" placeholder="Search products..."
@@ -50,7 +50,7 @@
                             <svg class="w-3.5 h-3.5 text-gray-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
-                            <span class="text-[10px] font-black uppercase tracking-widest px-2 hover:text-[#F53003] transition-colors">
+                            <span class="hidden sm:inline text-[10px] font-black uppercase tracking-widest px-2 hover:text-[#F53003] transition-colors max-w-[140px] truncate">
                                 {{ Auth::user()->name }}
                             </span>
                             <svg id="profile-dropdown-chevron" class="w-3 h-3 text-gray-600 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
@@ -99,7 +99,41 @@
                         <a href="{{ route('register') }}" class="text-[10px] font-black uppercase tracking-widest text-white hover:text-[#F53003] transition-colors">Join Us</a>
                     </div>
                 @endauth
+
+                <button id="mobile-menu-btn"
+                        type="button"
+                        class="md:hidden inline-flex items-center justify-center p-2 rounded-md border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+                        aria-controls="mobile-menu"
+                        aria-expanded="false">
+                    <svg id="mobile-menu-open-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    <svg id="mobile-menu-close-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
+        </div>
+    </div>
+
+    <div id="mobile-menu" class="md:hidden hidden border-t border-white/10 bg-black/95">
+        <div class="px-4 py-4 space-y-3 text-[11px] font-black uppercase tracking-[0.16em]">
+            <a href="{{ route('hn.featured') }}" class="block {{ request()->routeIs('hn.featured') ? 'text-[#F53003]' : 'text-gray-300' }} hover:text-white transition-colors">New & Featured</a>
+            <a href="{{ route('hn.clothes') }}" class="block {{ request()->routeIs('hn.clothes') ? 'text-[#F53003]' : 'text-gray-300' }} hover:text-white transition-colors">Clothes</a>
+            <a href="{{ route('hn.shoes') }}" class="block {{ request()->routeIs('hn.shoes') ? 'text-[#F53003]' : 'text-gray-300' }} hover:text-white transition-colors">Shoes</a>
+            <a href="{{ route('hn.crocs') }}" class="block {{ request()->routeIs('hn.crocs') ? 'text-[#F53003]' : 'text-gray-300' }} hover:text-white transition-colors">Crocs</a>
+            <a href="{{ route('hn.sale') }}" class="block {{ request()->routeIs('hn.sale') ? 'text-[#F53003]' : 'text-gray-300' }} hover:text-white transition-colors">Sale</a>
+        </div>
+
+        <div class="px-4 pb-4">
+            <form action="{{ route('hn.featured') }}" method="GET" class="relative">
+                <input type="text" name="search" placeholder="Search products..."
+                       class="w-full bg-[#1a1a1a] text-white text-[10px] rounded-full pl-9 pr-4 py-2.5 border border-white/10 focus:border-[#F53003] focus:ring-0 outline-none transition-all placeholder:text-gray-600 font-bold uppercase tracking-wider"
+                       value="{{ request('search') }}">
+                <svg class="w-3.5 h-3.5 text-gray-500 absolute left-3.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </form>
         </div>
     </div>
 </nav>
@@ -148,5 +182,20 @@
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') closeMenu();
         });
+
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const openIcon = document.getElementById('mobile-menu-open-icon');
+        const closeIcon = document.getElementById('mobile-menu-close-icon');
+
+        if (mobileBtn && mobileMenu && openIcon && closeIcon) {
+            mobileBtn.addEventListener('click', function () {
+                const isHidden = mobileMenu.classList.contains('hidden');
+                mobileMenu.classList.toggle('hidden');
+                openIcon.classList.toggle('hidden');
+                closeIcon.classList.toggle('hidden');
+                mobileBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+            });
+        }
     })();
 </script>
