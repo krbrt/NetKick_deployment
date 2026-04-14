@@ -9,6 +9,7 @@ use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CheckoutController extends Controller
 {
@@ -36,7 +37,6 @@ class CheckoutController extends Controller
      */
     public function process(Request $request)
     {
-        // COD only
         $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
@@ -57,14 +57,13 @@ class CheckoutController extends Controller
         }
 
         return DB::transaction(function () use ($request, $cartItems, $total) {
-            $order = Order::create([
+            $orderData = [
                 'user_id' => Auth::id(),
                 'order_number' => 'NK-' . strtoupper(uniqid()),
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
-'phone' => $request->phone,
+                'phone' => $request->phone,
                 'address' => $request->address,
-'shipping_address' => $request->address ?? $request->address,
                 'subtotal' => $total,
                 'discount_amount' => 0,
                 'total_amount' => $total,
@@ -72,7 +71,14 @@ class CheckoutController extends Controller
                 'payment_method' => $request->payment_method,
                 'status' => $request->payment_method === 'gcash' ? 'paid' : 'pending',
                 'notes' => $request->payment_method === 'gcash' ? 'GCash Ref: ' . $request->gcash_reference : 'Cash on Delivery',
-            ]);
+            ];
+
+            // Guard against environments where this column doesn't exist.
+            if (Schema::hasColumn('orders', 'shipping_address')) {
+                $orderData['shipping_address'] = $request->address;
+            }
+
+            $order = Order::create($orderData);
 
             foreach ($cartItems as $cartItem) {
                 $product = Product::find($cartItem['id']);
@@ -83,7 +89,7 @@ class CheckoutController extends Controller
                     'product_image' => $cartItem['image'],
                     'quantity' => $cartItem['quantity'],
                     'price' => $cartItem['price'],
-                    'size' => $cartItem['size'] ?? null,
+                    'size' => $cartItem['size'] ?? 'Standard',
                 ]);
 
                 if ($product) {
