@@ -113,19 +113,19 @@
                         {{-- Added hidden input to bind the Alpine.js selectedSize to the form submission --}}
                         <input type="hidden" name="size" :value="selectedSize" required>
                         
-                        <button type="submit" 
-                                ::disabled="!selectedSize"
-                                :class="!selectedSize ? 'opacity-50 cursor-not-allowed' : ''"
-                                class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
-                            <span x-text="selectedSize ? 'Add To Cart' : 'Select Size'"></span>
-                        </button>
+<button type="submit" 
+        :disabled="!selectedSize"
+        :class="!selectedSize ? 'opacity-50 cursor-not-allowed' : ''"
+        class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
+    <span x-text="selectedSize ? 'Add To Cart' : 'Select Size'"></span>
+</button>
                     </form>
                 @else
                     <a href="{{ route('login') }}" class="inline-block bg-gray-100 text-gray-500 text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-black hover:text-white transition w-full text-center">
                         Sign in to Buy
                     </a>
                 @endauth
-                
+
             </div>
         @empty
             <div class="col-span-full text-center py-20 border-2 border-dashed border-gray-100 rounded-3xl">

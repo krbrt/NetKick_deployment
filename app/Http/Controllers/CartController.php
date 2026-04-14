@@ -7,6 +7,36 @@ use App\Models\Product;
 
 class CartController extends Controller
 {
+    private function addItemToSessionCart(Product $product, int $quantityToAdd, string $size): ?string
+    {
+        if ($product->quantity < $quantityToAdd) {
+            return 'Only ' . $product->quantity . ' units left in the vault!';
+        }
+
+        $cart = session()->get('cart', []);
+        $cartKey = $product->id . '_' . $size;
+
+        if (isset($cart[$cartKey])) {
+            if (($cart[$cartKey]['quantity'] + $quantityToAdd) > $product->quantity) {
+                return 'Cannot add more. Max vault capacity reached for this item.';
+            }
+            $cart[$cartKey]['quantity'] += $quantityToAdd;
+        } else {
+            $cart[$cartKey] = [
+                "id"       => $product->id,
+                "name"     => $product->name,
+                "quantity" => $quantityToAdd,
+                "size"     => $size,
+                "price"    => $product->price,
+                "image"    => $product->image,
+                "category" => $product->category ?? 'General Apparel'
+            ];
+        }
+
+        session()->put('cart', $cart);
+        return null;
+    }
+
     /**
      * Display the cart contents.
      */
@@ -23,44 +53,29 @@ class CartController extends Controller
     public function store(Request $request)
     {
         $product = Product::findOrFail($request->product_id);
-        
-        // Retrieve quantity and size from the request (defaults to 1 and Standard)
-        $quantityToAdd = $request->input('quantity', 1);
-        $size = $request->input('size', 'Standard');
-        
-        // --- INVENTORY CHECK ---
-        if ($product->quantity < $quantityToAdd) {
-            return redirect()->back()->with('error', 'Only ' . $product->quantity . ' units left in the vault!');
+        $quantityToAdd = (int) $request->input('quantity', 1);
+        $size = (string) $request->input('size', 'Standard');
+        $errorMessage = $this->addItemToSessionCart($product, $quantityToAdd, $size);
+        if ($errorMessage) {
+            return redirect()->back()->with('error', $errorMessage);
         }
-
-        $cart = session()->get('cart', []);
-
-        // We create a unique key based on ID and Size so different sizes 
-        // of the same shoe appear as separate items in the cart
-        $cartKey = $product->id . '_' . $size;
-
-        if(isset($cart[$cartKey])) {
-            // Check if total quantity (existing + new) exceeds stock
-            if (($cart[$cartKey]['quantity'] + $quantityToAdd) > $product->quantity) {
-                return redirect()->back()->with('error', 'Cannot add more. Max vault capacity reached for this item.');
-            }
-            $cart[$cartKey]['quantity'] += $quantityToAdd;
-        } else {
-            $cart[$cartKey] = [
-                "id"       => $product->id,
-                "name"     => $product->name,
-                "quantity" => $quantityToAdd,
-                "size"     => $size,
-                "price"    => $product->price,
-                "image"    => $product->image,
-                "category" => $product->category ?? 'General Apparel'
-            ];
-        }
-
-        session()->put('cart', $cart);
 
         // Redirect directly to the cart index page as requested
         return redirect()->route('cart.index')->with('success', 'Product added to vault!');
+    }
+
+    public function buyNow(Request $request)
+    {
+        $product = Product::findOrFail($request->product_id);
+        $quantityToAdd = (int) $request->input('quantity', 1);
+        $size = (string) $request->input('size', 'Standard');
+
+        $errorMessage = $this->addItemToSessionCart($product, $quantityToAdd, $size);
+        if ($errorMessage) {
+            return redirect()->back()->with('error', $errorMessage);
+        }
+
+        return redirect()->route('checkout.index');
     }
 
     /**
@@ -110,5 +125,4 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Item removed from vault.');
     }
 
-    
 }

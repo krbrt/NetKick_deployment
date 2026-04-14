@@ -44,7 +44,15 @@
                     <div class="w-24 h-24 bg-[#f9f9f9] rounded-[1rem] flex-shrink-0 flex items-center justify-center border border-white/5 overflow-hidden">
                         @php $image = $item['product']['image'] ?? $item['image'] ?? null; @endphp
                         @if($image)
-                            <img src="{{ asset('storage/' . $image) }}" class="w-3/4 h-3/4 object-contain">
+                            @php
+                                $imagePath = ltrim($image, '/');
+                                $imageUrl = \Illuminate\Support\Str::startsWith($image, ['http://', 'https://'])
+                                    ? $image
+                                    : (\Illuminate\Support\Str::startsWith($imagePath, 'storage/')
+                                        ? asset($imagePath)
+                                        : \Illuminate\Support\Facades\Storage::url($imagePath));
+                            @endphp
+                            <img src="{{ $imageUrl }}" class="w-3/4 h-3/4 object-contain">
                         @else
                             <div class="text-[8px] font-black uppercase text-black/20 italic text-center px-2">No Image</div>
                         @endif

@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('cart')->name('cart.')->controller(CartController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/add', 'store')->name('store');
+        Route::post('/buy-now', 'buyNow')->name('buyNow');
         Route::patch('/update', 'update')->name('update'); // Para sa qty adjustment
         Route::delete('/remove/{id}', 'destroy')->name('destroy');
         Route::post('/apply-voucher', 'applyVoucher')->name('applyVoucher'); // NEW: Para sa discounts

@@ -108,7 +108,7 @@
         @forelse ($products->filter(fn($product) => $product->quality) as $product)
 
         @php
-            $imageUrl = $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png');
+            $imageUrl = $product->image_url;
             $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
             $defaultSize = count($productSizes) > 0 ? trim($productSizes[0]) : '';
         @endphp
@@ -181,11 +181,10 @@
                                 Add to Cart
                             </button>
                             
-                            {{-- Corrected Buy Now Link --}}
-                            <a :href="`{{ route('checkout.index') }}?product_id={{ $product->id }}&size=${selectedSize}`"
+                            <button type="submit" formaction="{{ route('cart.buyNow') }}"
                                class="w-full block text-center bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
                                 Buy Now
-                            </a>
+                            </button>
                         </div>
                     </form>
                 @else

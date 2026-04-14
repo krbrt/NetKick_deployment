@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -40,5 +42,23 @@ class Product extends Model
         if (!$this->is_on_sale) return false;
         if (!$this->sale_ends_at) return true;
         return $this->sale_ends_at->isFuture();
+    }
+
+    public function getImageUrlAttribute(): string
+    {
+        if (empty($this->image)) {
+            return asset('images/no-image.png');
+        }
+
+        if (Str::startsWith($this->image, ['http://', 'https://'])) {
+            return $this->image;
+        }
+
+        $path = ltrim($this->image, '/');
+        if (Str::startsWith($path, 'storage/')) {
+            return asset($path);
+        }
+
+        return Storage::url($path);
     }
 }
