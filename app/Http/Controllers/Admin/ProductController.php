@@ -24,14 +24,36 @@ class ProductController extends Controller
         preg_match_all('/([^\s,;=]+)\s*=\s*(\d+)/', $raw, $matches, PREG_SET_ORDER);
         if (!empty($matches)) {
             return collect($matches)
-                ->map(fn ($m) => trim($m[1]) . '=' . max(0, (int) $m[2]))
+                ->map(function ($m) {
+                    $qty = (int) $m[2];
+                    $qty = max(1, min(6, $qty));
+                    return trim($m[1]) . '=' . $qty;
+                })
                 ->implode(', ');
         }
 
-        return collect(preg_split('/[\r\n,;]+/', $raw) ?: [])
+        $tokens = collect(preg_split('/[\r\n,;]+/', $raw) ?: [])
             ->map(fn ($token) => trim($token))
             ->filter()
-            ->implode(', ');
+            ->values();
+
+        $normalized = [];
+        foreach ($tokens as $token) {
+            if (preg_match('/^(\d+)\s*-\s*(\d+)$/', $token, $range)) {
+                $start = (int) $range[1];
+                $end = (int) $range[2];
+                $step = $start <= $end ? 1 : -1;
+                for ($i = $start; $step === 1 ? $i <= $end : $i >= $end; $i += $step) {
+                    $normalized[] = $i . '=1';
+                }
+                continue;
+            }
+
+            // Single size defaults to quantity 1.
+            $normalized[] = $token . '=1';
+        }
+
+        return implode(', ', $normalized);
     }
 
     private function totalSizeStock(string $sizes): ?int

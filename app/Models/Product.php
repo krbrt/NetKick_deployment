@@ -100,6 +100,21 @@ class Product extends Model
         $tokens = array_filter(array_map('trim', $tokens));
 
         foreach ($tokens as $token) {
+            if (preg_match('/^(\d+)\s*-\s*(\d+)$/', $token, $range)) {
+                $start = (int) $range[1];
+                $end = (int) $range[2];
+                if ($start <= $end) {
+                    for ($i = $start; $i <= $end; $i++) {
+                        $map[(string) $i] = null;
+                    }
+                } else {
+                    for ($i = $start; $i >= $end; $i--) {
+                        $map[(string) $i] = null;
+                    }
+                }
+                continue;
+            }
+
             if (str_contains($token, '=')) {
                 [$size, $qty] = array_map('trim', explode('=', $token, 2));
                 if ($size === '') {

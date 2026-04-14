@@ -130,7 +130,7 @@
                             @forelse($productSizes as $size)
                                 <button type="button" 
                                         data-size-button
-                                        onclick="setProductSize({{ $product->id }}, @js($size), this)"
+                                        onclick='setProductSize({{ $product->id }}, @json($size), this)'
                                         class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none {{ $loop->first ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black' }}">
                                     {{ $size }}
                                 </button>
