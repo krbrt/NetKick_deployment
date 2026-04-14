@@ -45,7 +45,7 @@
                 <div class="flex flex-col group cursor-pointer">
                     {{-- Image Container --}}
                     <div class="relative aspect-[4/5] bg-[#f9f9f9] mb-8 overflow-hidden flex items-center justify-center border border-gray-100 group-hover:border-[#F53003]/20 transition-all duration-500">
-                        <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}" 
+                        <img src="{{ $product->image_url }}"
                              alt="{{ $product->name }}" 
                              class="w-full h-full object-contain p-8 mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
                         

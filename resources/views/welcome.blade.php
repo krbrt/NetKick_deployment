@@ -60,14 +60,18 @@
     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
         @forelse ($products->filter(fn($product) => $product->quality) as $product)
             {{-- Added x-data to manage the state for each product card --}}
-            <div class="flex flex-col group" x-data="{ selectedSize: '' }">
+            @php
+                $sizes = collect(explode(',', (string) $product->sizes))
+                    ->map(fn($size) => trim($size))
+                    ->filter()
+                    ->values()
+                    ->all();
+                $defaultSize = count($sizes) > 0 ? $sizes[0] : 'Standard';
+            @endphp
+            <div class="flex flex-col group" x-data="{ selectedSize: '{{ $defaultSize }}' }">
                 {{-- Image Container --}}
                 <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
-                    @if($product->image)
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
-                    @else
-                        <img src="{{ asset('images/no-image.png') }}" alt="No image available" class="w-full h-full object-contain p-4 mix-blend-multiply">
-                    @endif
+                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4 mix-blend-multiply">
                     
                     @if($product->quality)
                         <div class="absolute top-0 left-0 bg-[#F53003] text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">
@@ -91,18 +95,18 @@
 
                     {{-- Size Selector --}}
                     <div class="flex flex-wrap justify-center gap-1.5 px-2">
-@php
-                            $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
-                            $sizes = $productSizes;
-                        @endphp
-                        @foreach($sizes as $size)
-                            <button type="button" 
-                                    @click="selectedSize = '{{ trim($size) }}'"
-                                    :class="selectedSize === '{{ trim($size) }}' ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
+                        @forelse($sizes as $size)
+                            <button type="button"
+                                    @click="selectedSize = '{{ $size }}'"
+                                    :class="selectedSize === '{{ $size }}' ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
                                     class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none">
-                                {{ trim($size) }}
+                                {{ $size }}
                             </button>
-                        @endforeach
+                        @empty
+                            <span class="text-[8px] font-black uppercase border border-gray-200 px-3 py-1 text-gray-400">
+                                Standard
+                            </span>
+                        @endforelse
                     </div>
                 </div>
 
@@ -111,13 +115,11 @@
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         {{-- Added hidden input to bind the Alpine.js selectedSize to the form submission --}}
-                        <input type="hidden" name="size" :value="selectedSize" required>
-                        
-<button type="submit" 
-        :disabled="!selectedSize"
-        :class="!selectedSize ? 'opacity-50 cursor-not-allowed' : ''"
+                        <input type="hidden" name="size" :value="selectedSize">
+
+<button type="submit"
         class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors">
-    <span x-text="selectedSize ? 'Add To Cart' : 'Select Size'"></span>
+    Add To Cart
 </button>
                     </form>
                 @else

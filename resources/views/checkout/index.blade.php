@@ -100,7 +100,20 @@
         <div class="flex items-center gap-4">
             <div class="w-20 h-20 bg-white rounded-2xl overflow-hidden flex-shrink-0 border border-gray-100">
                 {{-- FIXED: Added 'storage/' path and a fallback for missing images --}}
-                <img src="{{ !empty($details['image']) ? asset('storage/' . $details['image']) : asset('images/no-image.png') }}" class="w-full h-full object-cover" alt="{{ $details['name'] }}">
+                @php
+                    $detailImage = $details['image'] ?? null;
+                    if (!empty($detailImage)) {
+                        $detailImagePath = ltrim($detailImage, '/');
+                        $detailImageUrl = \Illuminate\Support\Str::startsWith($detailImage, ['http://', 'https://'])
+                            ? $detailImage
+                            : (\Illuminate\Support\Str::startsWith($detailImagePath, 'storage/')
+                                ? asset($detailImagePath)
+                                : \Illuminate\Support\Facades\Storage::url($detailImagePath));
+                    } else {
+                        $detailImageUrl = asset('images/no-image.png');
+                    }
+                @endphp
+                <img src="{{ $detailImageUrl }}" class="w-full h-full object-cover" alt="{{ $details['name'] }}">
             </div>
             <div class="flex-1">
                 <h3 class="text-[11px] font-black uppercase leading-tight tracking-tight">{{ $details['name'] }}</h3>

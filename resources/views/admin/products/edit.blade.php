@@ -33,7 +33,7 @@
                 {{-- Image Preview Card --}}
                 <div class="md:col-span-1 bg-[#111111] border border-white/5 p-4 rounded-[2rem] flex flex-col items-center justify-center group relative overflow-hidden">
                     @if($product->image)
-                        <img src="{{ asset($product->image) }}" class="h-32 w-full object-contain mb-2 group-hover:opacity-20 transition-all">
+                        <img src="{{ $product->image_url }}" class="h-32 w-full object-contain mb-2 group-hover:opacity-20 transition-all">
                     @endif
                     <label class="cursor-pointer text-center">
                         <span class="text-[9px] font-black uppercase tracking-widest text-gray-500 group-hover:text-white transition-all">Replace Image</span>

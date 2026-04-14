@@ -52,7 +52,7 @@
                             {{-- Image --}}
                             <td class="py-8 pr-4">
                                 <div class="w-16 h-16 bg-[#111] rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center p-2 border border-white/5 group-hover:border-[#F53003]/30 transition-colors">
-<img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png') }}" class="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500">
+<img src="{{ $product->image_url }}" class="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500">
                                 </div>
                             </td>
 

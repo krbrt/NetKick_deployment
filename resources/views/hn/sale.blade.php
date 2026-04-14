@@ -109,8 +109,12 @@
 
         @php
             $imageUrl = $product->image_url;
-            $productSizes = $product->sizes ? explode(',', $product->sizes) : [];
-            $defaultSize = count($productSizes) > 0 ? trim($productSizes[0]) : '';
+            $productSizes = collect(explode(',', (string) $product->sizes))
+                ->map(fn($size) => trim($size))
+                ->filter()
+                ->values()
+                ->all();
+            $defaultSize = count($productSizes) > 0 ? $productSizes[0] : 'Standard';
         @endphp
 
         {{-- Added 'relative' here so absolute badges stay inside the card --}}
@@ -155,14 +159,18 @@
 
                 {{-- Selectable Sizes --}}
                 <div class="flex flex-wrap justify-center gap-1.5 px-2">
-                    @foreach($productSizes as $size)
+                    @forelse($productSizes as $size)
                         <button type="button" 
-                                @click="selectedSize = '{{ trim($size) }}'"
-                                :class="selectedSize === '{{ trim($size) }}' ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
+                                @click="selectedSize = '{{ $size }}'"
+                                :class="selectedSize === '{{ $size }}' ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
                                 class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none">
-                            {{ trim($size) }}
+                            {{ $size }}
                         </button>
-                    @endforeach
+                    @empty
+                        <span class="text-[9px] font-black uppercase border px-3 py-1 border-gray-200 text-gray-400">
+                            Standard
+                        </span>
+                    @endforelse
                 </div>
             </div>
 
