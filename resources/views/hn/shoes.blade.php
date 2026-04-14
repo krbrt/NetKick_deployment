@@ -115,8 +115,7 @@
                     $defaultSize = count($productSizes) > 0 ? $productSizes[0] : 'Standard';
                 @endphp
 
-                {{-- Wrapper handles the Size Selection State via Alpine --}}
-                <div x-data="{ selectedSize: @js($defaultSize) }" class="flex flex-col group h-full">
+                <div class="flex flex-col group h-full">
 
                     {{-- Image --}}
                     <div class="relative aspect-[4/5] bg-[#f6f6f6] mb-6 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-[#ebebeb] transition-colors">
@@ -135,13 +134,13 @@
                         <h3 class="text-sm font-extrabold uppercase tracking-tight text-black mb-1 line-clamp-1 leading-tight">{{ $product->name }}</h3>
                         <p class="text-xs font-bold text-gray-400 italic mb-4">₱{{ number_format($product->price, 2) }}</p>
 
-                        {{-- Selectable Sizes (Updates the Alpine State) --}}
+                        {{-- Selectable Sizes --}}
                         <div class="flex flex-wrap justify-center gap-1.5 px-2">
                             @forelse($productSizes as $size)
                                 <button type="button" 
-                                        @click="selectedSize = @js($size)"
-                                        :class="selectedSize === @js($size) ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black'"
-                                        class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none">
+                                        data-size-button
+                                        onclick="setProductSize({{ $product->id }}, @js($size), this)"
+                                        class="text-[9px] font-black uppercase border px-3 py-1 transition-all outline-none {{ $loop->first ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-400 hover:border-black hover:text-black' }}">
                                     {{ $size }}
                                 </button>
                             @empty
@@ -161,8 +160,7 @@
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                                 <input type="hidden" name="quantity" value="1">
-                                {{-- Dynamically bind the selected size --}}
-                                <input type="hidden" name="size" :value="selectedSize"> 
+                                <input type="hidden" id="selected-size-{{ $product->id }}" name="size" value="{{ $defaultSize }}">
 
 <div class="flex flex-col sm:flex-row gap-2">
     <button type="submit"
@@ -257,4 +255,21 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #000; }
     </style>
+    <script>
+        function setProductSize(productId, size, buttonEl) {
+            const input = document.getElementById(`selected-size-${productId}`);
+            if (input) input.value = size;
+
+            const container = buttonEl.parentElement;
+            if (!container) return;
+
+            container.querySelectorAll('[data-size-button]').forEach((btn) => {
+                btn.classList.remove('bg-black', 'text-white', 'border-black');
+                btn.classList.add('border-gray-200', 'text-gray-400', 'hover:border-black', 'hover:text-black');
+            });
+
+            buttonEl.classList.remove('border-gray-200', 'text-gray-400', 'hover:border-black', 'hover:text-black');
+            buttonEl.classList.add('bg-black', 'text-white', 'border-black');
+        }
+    </script>
 </x-app-layout>
