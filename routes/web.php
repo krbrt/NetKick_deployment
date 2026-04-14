@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductDisplayController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrderController;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,9 @@ Route::get('/', function () {
 Route::view('/terms', 'terms')->name('terms');
 Route::view('/privacy', 'privacy')->name('privacy');
 Route::view('/about', 'about')->name('about');
+Route::get('/media/public/{path}', [MediaController::class, 'public'])
+    ->where('path', '.*')
+    ->name('media.public');
 
 // User Display Routes (Shop, Categories)
 Route::name('hn.')->controller(ProductDisplayController::class)->group(function () {

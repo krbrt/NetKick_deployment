@@ -58,7 +58,12 @@ class Product extends Model
         if (Str::startsWith($path, 'storage/')) {
             return asset($path);
         }
+        $publicStorageFile = public_path('storage/' . $path);
+        if (is_file($publicStorageFile)) {
+            return asset('storage/' . $path);
+        }
 
-        return Storage::url($path);
+        // Fallback for environments where /public/storage symlink isn't available.
+        return route('media.public', ['path' => $path]);
     }
 }

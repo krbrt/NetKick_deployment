@@ -108,7 +108,9 @@
                             ? $detailImage
                             : (\Illuminate\Support\Str::startsWith($detailImagePath, 'storage/')
                                 ? asset($detailImagePath)
-                                : \Illuminate\Support\Facades\Storage::url($detailImagePath));
+                                : (is_file(public_path('storage/' . $detailImagePath))
+                                    ? asset('storage/' . $detailImagePath)
+                                    : route('media.public', ['path' => $detailImagePath])));
                     } else {
                         $detailImageUrl = asset('images/no-image.png');
                     }

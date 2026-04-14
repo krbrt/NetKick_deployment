@@ -50,7 +50,9 @@
                                     ? $image
                                     : (\Illuminate\Support\Str::startsWith($imagePath, 'storage/')
                                         ? asset($imagePath)
-                                        : \Illuminate\Support\Facades\Storage::url($imagePath));
+                                        : (is_file(public_path('storage/' . $imagePath))
+                                            ? asset('storage/' . $imagePath)
+                                            : route('media.public', ['path' => $imagePath])));
                             @endphp
                             <img src="{{ $imageUrl }}" class="w-3/4 h-3/4 object-contain">
                         @else
