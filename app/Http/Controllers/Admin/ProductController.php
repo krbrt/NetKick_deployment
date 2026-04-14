@@ -9,6 +9,44 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    private function productImageDisk(): string
+    {
+        return config('filesystems.product_images_disk', 'public');
+    }
+
+    private function normalizeSizes(string $sizes): string
+    {
+        return collect(explode(',', $sizes))
+            ->map(fn ($token) => trim($token))
+            ->filter()
+            ->map(function ($token) {
+                if (!str_contains($token, '=')) {
+                    return $token;
+                }
+
+                [$size, $qty] = array_map('trim', explode('=', $token, 2));
+                return $size . '=' . max(0, (int) $qty);
+            })
+            ->implode(', ');
+    }
+
+    private function totalSizeStock(string $sizes): ?int
+    {
+        $tokens = collect(explode(',', $sizes))
+            ->map(fn ($token) => trim($token))
+            ->filter(fn ($token) => str_contains($token, '='))
+            ->values();
+
+        if ($tokens->isEmpty()) {
+            return null;
+        }
+
+        return $tokens->sum(function ($token) {
+            [, $qty] = array_map('trim', explode('=', $token, 2));
+            return max(0, (int) $qty);
+        });
+    }
+
     public function inventory()
     {
         $products = Product::latest()->paginate(10);
@@ -43,8 +81,12 @@ class ProductController extends Controller
         // ✅ Store in storage/app/public/products — persists on Laravel Cloud
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');;
+            $imagePath = $request->file('image')->store('products', $this->productImageDisk());
         }
+
+        $normalizedSizes = $request->filled('sizes') ? $this->normalizeSizes($request->sizes) : null;
+        $sizeStockTotal = $normalizedSizes ? $this->totalSizeStock($normalizedSizes) : null;
+        $finalQuantity = $sizeStockTotal ?? (int) $request->quantity;
 
         Product::create([
             'name'       => $request->name,
@@ -54,8 +96,8 @@ class ProductController extends Controller
             'color'      => $request->color,
             'gender'     => $request->gender,
             'price'      => $request->price,
-            'quantity'   => $request->quantity,
-            'sizes'      => $request->filled('sizes') ? $request->sizes : null,
+            'quantity'   => $finalQuantity,
+            'sizes'      => $normalizedSizes,
             'image'      => $imagePath,
 'quality'    => $request->quality ?? null,
             'is_on_sale' => false,
@@ -92,14 +134,18 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             // ✅ Delete old image from storage
             if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+                Storage::disk($this->productImageDisk())->delete($product->image);
             }
             // ✅ Store new image
-            $product->image = $request->file('image')->store('products', 'public');
+            $product->image = $request->file('image')->store('products', $this->productImageDisk());
         }
 
         $brand    = ($request->brand === 'OTHER') ? $request->new_brand : $request->brand;
         $category = ($request->category === 'NEW') ? $request->new_category : $request->category;
+
+        $normalizedSizes = $request->filled('sizes') ? $this->normalizeSizes($request->sizes) : null;
+        $sizeStockTotal = $normalizedSizes ? $this->totalSizeStock($normalizedSizes) : null;
+        $finalQuantity = $sizeStockTotal ?? (int) $request->quantity;
 
         $product->update([
             'name'     => $request->name,
@@ -109,8 +155,8 @@ class ProductController extends Controller
             'color'    => $request->color,
             'gender'   => $request->gender,
             'price'    => $request->price,
-            'quantity' => $request->quantity,
-            'sizes'    => $request->filled('sizes') ? $request->sizes : null,
+            'quantity' => $finalQuantity,
+            'sizes'    => $normalizedSizes,
             'image'    => $product->image,
 'quality'  => $request->quality ?? null,
         ]);
@@ -124,7 +170,7 @@ class ProductController extends Controller
 
         // ✅ Delete from storage
         if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+            Storage::disk($this->productImageDisk())->delete($product->image);
         }
 
         $product->delete();

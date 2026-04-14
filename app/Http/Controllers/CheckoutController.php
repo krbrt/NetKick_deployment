@@ -13,6 +13,28 @@ use Illuminate\Support\Facades\Schema;
 
 class CheckoutController extends Controller
 {
+    private function decrementSizeStock(Product $product, ?string $size, int $qty): void
+    {
+        if (empty($size)) {
+            return;
+        }
+
+        $map = $product->size_stock_map;
+        if (!array_key_exists($size, $map) || $map[$size] === null) {
+            return;
+        }
+
+        $map[$size] = max(0, ((int) $map[$size]) - $qty);
+
+        $serialized = collect($map)
+            ->map(function ($stock, $sizeKey) {
+                return $stock === null ? $sizeKey : ($sizeKey . '=' . $stock);
+            })
+            ->implode(', ');
+
+        $product->sizes = $serialized;
+    }
+
     /**
      * Ipakita ang Checkout Form (address, payment method, etc.)
      */
@@ -94,6 +116,8 @@ class CheckoutController extends Controller
 
                 if ($product) {
                     $product->decrement('quantity', $cartItem['quantity']);
+                    $this->decrementSizeStock($product, $cartItem['size'] ?? null, (int) $cartItem['quantity']);
+                    $product->save();
                 }
             }
 

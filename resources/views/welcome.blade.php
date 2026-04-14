@@ -61,11 +61,7 @@
         @forelse ($products->filter(fn($product) => $product->quality) as $product)
             {{-- Added x-data to manage the state for each product card --}}
             @php
-                $sizes = collect(explode(',', (string) $product->sizes))
-                    ->map(fn($size) => trim($size))
-                    ->filter()
-                    ->values()
-                    ->all();
+                $sizes = $product->available_sizes;
                 $defaultSize = count($sizes) > 0 ? $sizes[0] : '';
             @endphp
             <div class="flex flex-col group">

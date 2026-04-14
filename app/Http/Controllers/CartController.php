@@ -9,11 +9,7 @@ class CartController extends Controller
 {
     private function getAvailableSizes(Product $product): array
     {
-        return collect(explode(',', (string) $product->sizes))
-            ->map(fn ($size) => trim($size))
-            ->filter()
-            ->values()
-            ->all();
+        return $product->available_sizes;
     }
 
     private function addItemToSessionCart(Product $product, int $quantityToAdd, string $size): ?string
@@ -30,15 +26,24 @@ class CartController extends Controller
             return 'Selected size is not available.';
         }
 
+        $sizeStockMap = $product->size_stock_map;
+        $sizeStock = $sizeStockMap[$size] ?? null;
+
         $cart = session()->get('cart', []);
         $cartKey = $product->id . '_' . $size;
 
         if (isset($cart[$cartKey])) {
+            if ($sizeStock !== null && ($cart[$cartKey]['quantity'] + $quantityToAdd) > $sizeStock) {
+                return 'Only ' . $sizeStock . ' unit(s) available for size ' . $size . '.';
+            }
             if (($cart[$cartKey]['quantity'] + $quantityToAdd) > $product->quantity) {
                 return 'Cannot add more. Max vault capacity reached for this item.';
             }
             $cart[$cartKey]['quantity'] += $quantityToAdd;
         } else {
+            if ($sizeStock !== null && $quantityToAdd > $sizeStock) {
+                return 'Only ' . $sizeStock . ' unit(s) available for size ' . $size . '.';
+            }
             $cart[$cartKey] = [
                 "id"       => $product->id,
                 "name"     => $product->name,

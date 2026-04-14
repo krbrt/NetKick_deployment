@@ -98,11 +98,7 @@
 
                 @php
                     $imageUrl = $product->image_url;
-                    $productSizes = collect(explode(',', (string) $product->sizes))
-                        ->map(fn($size) => trim($size))
-                        ->filter()
-                        ->values()
-                        ->all();
+                    $productSizes = $product->available_sizes;
                     $defaultSize = count($productSizes) > 0 ? $productSizes[0] : '';
                 @endphp
 

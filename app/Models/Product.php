@@ -71,6 +71,13 @@ class Product extends Model
             $path = Str::after($path, 'public/');
         }
 
+        $disk = config('filesystems.product_images_disk', 'public');
+
+        // For cloud/object disks, always use disk URL to keep files deploy-safe.
+        if ($disk !== 'public') {
+            return Storage::disk($disk)->url($path);
+        }
+
         $publicStorageFile = public_path('storage/' . ltrim($path, '/'));
         if (is_file($publicStorageFile)) {
             return asset('storage/' . $path);
@@ -78,5 +85,34 @@ class Product extends Model
 
         // Fallback for environments where /public/storage symlink isn't available.
         return route('media.public', ['path' => $path]);
+    }
+
+    public function getSizeStockMapAttribute(): array
+    {
+        $map = [];
+        $tokens = array_filter(array_map('trim', explode(',', (string) $this->sizes)));
+
+        foreach ($tokens as $token) {
+            if (str_contains($token, '=')) {
+                [$size, $qty] = array_map('trim', explode('=', $token, 2));
+                if ($size !== '') {
+                    $map[$size] = max(0, (int) $qty);
+                }
+            } else {
+                // Legacy format support: "42,43,44"
+                $map[$token] = null;
+            }
+        }
+
+        return $map;
+    }
+
+    public function getAvailableSizesAttribute(): array
+    {
+        return collect($this->size_stock_map)
+            ->filter(fn ($qty) => $qty === null || $qty > 0)
+            ->keys()
+            ->values()
+            ->all();
     }
 }

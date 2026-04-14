@@ -17,6 +17,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Product Images Disk
+    |--------------------------------------------------------------------------
+    |
+    | Use a persistent disk for product images in production (e.g. s3).
+    | Falls back to local public disk by default for local development.
+    |
+    */
+    'product_images_disk' => env('PRODUCT_IMAGES_DISK', 'public'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
