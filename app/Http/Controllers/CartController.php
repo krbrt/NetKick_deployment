@@ -75,8 +75,12 @@ class CartController extends Controller
     public function store(Request $request)
     {
         $product = Product::findOrFail($request->product_id);
-        $quantityToAdd = (int) $request->input('quantity', 1);
-        $size = (string) $request->input('size', '');
+        $quantityToAdd = max(1, (int) $request->input('quantity', 1));
+        $size = trim((string) $request->input('size', ''));
+        if ($size === '') {
+            $availableSizes = $this->getAvailableSizes($product);
+            $size = $availableSizes[0] ?? '';
+        }
         $errorMessage = $this->addItemToSessionCart($product, $quantityToAdd, $size);
         if ($errorMessage) {
             return redirect()->back()->with('error', $errorMessage);
@@ -89,8 +93,12 @@ class CartController extends Controller
     public function buyNow(Request $request)
     {
         $product = Product::findOrFail($request->product_id);
-        $quantityToAdd = (int) $request->input('quantity', 1);
-        $size = (string) $request->input('size', '');
+        $quantityToAdd = max(1, (int) $request->input('quantity', 1));
+        $size = trim((string) $request->input('size', ''));
+        if ($size === '') {
+            $availableSizes = $this->getAvailableSizes($product);
+            $size = $availableSizes[0] ?? '';
+        }
 
         $errorMessage = $this->addItemToSessionCart($product, $quantityToAdd, $size);
         if ($errorMessage) {
