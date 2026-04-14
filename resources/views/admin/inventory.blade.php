@@ -81,8 +81,11 @@
 
                             {{-- Sizes --}}
                             <td class="py-8 px-4 text-center">
+                                @php
+                                    $availableSizes = $product->available_sizes;
+                                @endphp
                                 <span class="text-[10px] font-black italic text-white bg-white/5 px-2 py-1 rounded">
-                                    {{ filled($product->sizes) ? $product->sizes : 'N/A' }}
+                                    {{ count($availableSizes) > 0 ? implode(', ', $availableSizes) : 'N/A' }}
                                 </span>
                             </td>
 

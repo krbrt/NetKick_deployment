@@ -128,7 +128,8 @@ class Product extends Model
                     continue;
                 }
 
-                $map[$size] = max(1, min(6, (int) $qty));
+                // Keep 0 so sold-out sizes stay unavailable after checkout.
+                $map[$size] = max(0, min(6, (int) $qty));
             } elseif ($token !== '') {
                 $map[$token] = null;
             }

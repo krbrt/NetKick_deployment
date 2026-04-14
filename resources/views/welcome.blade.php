@@ -99,7 +99,12 @@
                                 {{ $size }}
                             </button>
                         @empty
-                            <span class="text-[8px] font-black uppercase border border-gray-200 px-3 py-1 text-gray-400">Not Available</span>
+                            <button type="button"
+                                    data-size-button
+                                    onclick='setLandingProductSize({{ $product->id }}, "Standard", this)'
+                                    class="text-[8px] font-black uppercase border border-black px-3 py-1 text-white bg-black transition-all outline-none">
+                                Standard
+                            </button>
                         @endforelse
                     </div>
                 </div>
