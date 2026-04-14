@@ -77,8 +77,8 @@
                 <div class="bg-[#111111] border border-white/5 p-8 rounded-[2rem]">
                     <label class="text-[9px] font-black uppercase tracking-[0.3em] text-gray-500 mb-4 block">Size Manifest</label>
                     <input type="text" name="sizes" value="{{ old('sizes', $product->sizes) }}" 
-                        class="w-full bg-transparent border-none p-0 text-white text-2xl font-black italic tracking-tighter focus:ring-0 outline-none" placeholder="42=1, 43=2, 44=0">
-                    <p class="text-[9px] text-gray-600 mt-2 font-black uppercase tracking-widest">Format: size=qty (example 42=1). Leave blank if not available.</p>
+                        class="w-full bg-transparent border-none p-0 text-white text-2xl font-black italic tracking-tighter focus:ring-0 outline-none" placeholder="40-45=2 or 42=1, 43=3">
+                    <p class="text-[9px] text-gray-600 mt-2 font-black uppercase tracking-widest">Format: 40-45=2 or 42=1 (qty auto-limited to 1-6). Leave blank if not available.</p>
                 </div>
 
             </div>

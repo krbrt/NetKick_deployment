@@ -110,11 +110,18 @@
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         <input type="hidden" id="landing-selected-size-{{ $product->id }}" name="size" value="{{ $defaultSize }}">
 
-<button type="submit"
-        {{ empty($defaultSize) ? 'disabled' : '' }}
-        class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors {{ empty($defaultSize) ? 'opacity-50 cursor-not-allowed hover:bg-black' : '' }}">
-    Add To Cart
-</button>
+<div class="flex flex-col sm:flex-row gap-2">
+    <button type="submit"
+            {{ empty($defaultSize) ? 'disabled' : '' }}
+            class="w-full bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors {{ empty($defaultSize) ? 'opacity-50 cursor-not-allowed hover:bg-black' : '' }}">
+        Add To Cart
+    </button>
+    <button type="submit" formaction="{{ route('cart.buyNow') }}"
+            {{ empty($defaultSize) ? 'disabled' : '' }}
+            class="w-full block text-center bg-black text-white text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#F53003] transition-colors {{ empty($defaultSize) ? 'opacity-50 cursor-not-allowed hover:bg-black' : '' }}">
+        Buy Now
+    </button>
+</div>
                     </form>
                 @else
                     <a href="{{ route('login') }}" class="inline-block bg-gray-100 text-gray-500 text-[10px] font-black py-3 rounded-lg uppercase tracking-widest hover:bg-black hover:text-white transition w-full text-center">

@@ -100,16 +100,17 @@ class Product extends Model
         $tokens = array_filter(array_map('trim', $tokens));
 
         foreach ($tokens as $token) {
-            if (preg_match('/^(\d+)\s*-\s*(\d+)$/', $token, $range)) {
+            if (preg_match('/^(\d+)\s*-\s*(\d+)(?:\s*=\s*(\d+))?$/', $token, $range)) {
                 $start = (int) $range[1];
                 $end = (int) $range[2];
+                $qty = isset($range[3]) ? max(1, min(6, (int) $range[3])) : null;
                 if ($start <= $end) {
                     for ($i = $start; $i <= $end; $i++) {
-                        $map[(string) $i] = null;
+                        $map[(string) $i] = $qty;
                     }
                 } else {
                     for ($i = $start; $i >= $end; $i--) {
-                        $map[(string) $i] = null;
+                        $map[(string) $i] = $qty;
                     }
                 }
                 continue;
@@ -127,7 +128,7 @@ class Product extends Model
                     continue;
                 }
 
-                $map[$size] = max(0, (int) $qty);
+                $map[$size] = max(1, min(6, (int) $qty));
             } elseif ($token !== '') {
                 $map[$token] = null;
             }

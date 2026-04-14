@@ -20,18 +20,6 @@ class ProductController extends Controller
         if ($raw === '') {
             return '';
         }
-
-        preg_match_all('/([^\s,;=]+)\s*=\s*(\d+)/', $raw, $matches, PREG_SET_ORDER);
-        if (!empty($matches)) {
-            return collect($matches)
-                ->map(function ($m) {
-                    $qty = (int) $m[2];
-                    $qty = max(1, min(6, $qty));
-                    return trim($m[1]) . '=' . $qty;
-                })
-                ->implode(', ');
-        }
-
         $tokens = collect(preg_split('/[\r\n,;]+/', $raw) ?: [])
             ->map(fn ($token) => trim($token))
             ->filter()
@@ -39,21 +27,36 @@ class ProductController extends Controller
 
         $normalized = [];
         foreach ($tokens as $token) {
-            if (preg_match('/^(\d+)\s*-\s*(\d+)$/', $token, $range)) {
+            // Range with optional qty: "40-45" or "40-45=3"
+            if (preg_match('/^(\d+)\s*-\s*(\d+)(?:\s*=\s*(\d+))?$/', $token, $range)) {
                 $start = (int) $range[1];
                 $end = (int) $range[2];
+                $qty = isset($range[3]) ? (int) $range[3] : 1;
+                $qty = max(1, min(6, $qty));
                 $step = $start <= $end ? 1 : -1;
+
                 for ($i = $start; $step === 1 ? $i <= $end : $i >= $end; $i += $step) {
-                    $normalized[] = $i . '=1';
+                    $normalized[(string) $i] = $qty;
                 }
                 continue;
             }
 
-            // Single size defaults to quantity 1.
-            $normalized[] = $token . '=1';
+            // Single size with optional qty: "42" or "42=4" or "XL=2"
+            if (preg_match('/^([^=\s]+)(?:\s*=\s*(\d+))?$/', $token, $single)) {
+                $size = trim($single[1]);
+                if ($size === '') {
+                    continue;
+                }
+
+                $qty = isset($single[2]) ? (int) $single[2] : 1;
+                $qty = max(1, min(6, $qty));
+                $normalized[$size] = $qty;
+            }
         }
 
-        return implode(', ', $normalized);
+        return collect($normalized)
+            ->map(fn ($qty, $size) => $size . '=' . $qty)
+            ->implode(', ');
     }
 
     private function totalSizeStock(string $sizes): ?int
