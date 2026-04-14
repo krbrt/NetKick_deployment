@@ -231,8 +231,8 @@ $products = $query->latest()->paginate(10);
         $imagePath = null;
         if ($request->hasFile('image')) {
             $imageName = time() . '_' . uniqid() . '.' . $request->image->extension();
-            $request->image->move(public_path('images/products'), $imageName);
-            $imagePath = 'images/products/' . $imageName;
+            $request->image->move(public_path('storage/products'), $imageName);
+            $imagePath = 'storage/products/' . $imageName;
         }
 
         Product::create([

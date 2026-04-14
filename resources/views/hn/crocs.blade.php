@@ -191,6 +191,7 @@
             </div>
         </main>
     </div>
+    
 
     <footer class="bg-black text-white pt-24 pb-12 px-6">
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">

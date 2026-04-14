@@ -196,6 +196,7 @@
                 @endauth
             </div>
 
+            
         </div>
         @empty
             <div class="col-span-full py-20 text-center">

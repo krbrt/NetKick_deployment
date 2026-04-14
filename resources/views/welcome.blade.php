@@ -125,6 +125,7 @@
                         Sign in to Buy
                     </a>
                 @endauth
+                
             </div>
         @empty
             <div class="col-span-full text-center py-20 border-2 border-dashed border-gray-100 rounded-3xl">

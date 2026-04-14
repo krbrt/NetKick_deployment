@@ -92,6 +92,7 @@
                     @endif
                 </div>
             </form>
+            
         </aside>
 
         {{-- Main Content --}}
